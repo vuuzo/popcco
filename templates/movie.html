@@ -1,8 +1,11 @@
 {% extends 'base.html' %}
 {{ super() }}
 {% block body %}
-<h1>{{ movie.title }}</h1>
-<p>{{movie.id}}</p>
+<section>
+  <h1>{{ movie.title }}</h1>
+  <p>{{ movie.release_date[:4] if movie.release_date else "Data nieznana"}}</p>
+</section>
+<p>{{movie.tagline if movie.tagline}}</p>
 <p>{{ movie.overview }}</p>
 
 
