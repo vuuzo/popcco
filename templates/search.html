@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block body %}
+
+<section class="search_container">
+  <form action="{{url_for('search')}}" method="GET">
+    <input type="search" name="q" placeholder="" autocomplete="off">
+  </form>
+</section>
+
+<h2>Wyniki dla "{{ query }}"</h2>
+<div class="search-results">
+  {% for movie in results %}
+  <div class="movie-card">
+      <div class="poster-wrapper">
+        <img
+        src="{{ movie.poster_path if movie.poster_path.startswith('/static')
+             else 'https://image.tmdb.org/t/p/w200' ~ movie.poster_path }}" 
+        alt="{{ movie.title }}"
+        >
+        <a href="{{ url_for('movie', id=movie.tmdb_id) }}"></a>
+      </div>
+
+      <div>
+        <h3>
+          <a href="{{ url_for('movie', id=movie.tmdb_id) }}">
+            {{ movie.title }}
+          </a>
+        </h3>
+        <p>{{ movie.release_date[:4] if movie.release_date else 'Data nieznana' }}</p>
+      </div>
+  </div>
+  {% else %}
+  <p>Brak wyników dla "{{ query }}".</p>
+  {% endfor %}
+</div>
+{% endblock %}

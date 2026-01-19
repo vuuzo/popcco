@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{{ super() }}
+{% block body %}
+<h1>{{ list.name }}</h1>
+<p>{{list.description}}</p>
+{% if is_owner %}
+<div class="owner-actions">
+  <form action="{{ url_for('remove_list', list_id=list.id) }}" method="POST">
+    <button type="submit">Usuń listę</button>
+  </form>
+</div>
+{% endif %}
+{% if movies %}
+<h3>Filmy na liście</h3>
+<ul class="list_movies">
+  {% for movie in movies %}
+  <li class="movie_detail_item">
+    <div class="poster-wrapper list-poster">
+      <img
+        src="{{ movie.poster_path if movie.poster_path.startswith('/static')
+        else 'https://image.tmdb.org/t/p/w200' ~ movie.poster_path }}"
+      >
+    </div>
+    <a href="{{ url_for('movie', id=movie.tmdb_id) }}">{{ movie.title }}</a>
+    {% if is_owner %}
+    <form action="{{ url_for('remove_from_list', list_id=list.id, movie_id=movie.tmdb_id) }}" method="POST">
+      <button type="submit" >Usuń</button>
+    </form>
+    {% endif %}
+  </li>
+  <br>
+  {% endfor %}
+</ul>
+{% else %}
+<p>Ta lista jest pusta.</p>
+{% endif %}
+{% endblock %}

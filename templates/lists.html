@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+  {% if session.get("user_id") %}
+    <section>
+      <h2 class="highlight">Twoje listy</h2>
+      <a href="{{ url_for('create_list') }}">Stwórz nową listę</a>
+      
+      {% if user_lists %}
+        {% for list in user_lists %}
+          <div>
+            <a href="{{ url_for('list_details', list_id=list.id) }}">
+              <h3>{{ list.name }}</h3>
+            </a>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p><a href="{{ url_for('create_list') }}">Stwórz</a> swoją pierwszą listę.</p>
+      {% endif %}
+    </section>
+  {% endif %}
+
+
+  <section>
+    <h2 class="highlight">Wszystkie listy</h2>
+
+    {% for list in lists %}
+      <section class="list-container">
+        <a href="{{ url_for('list_details', list_id=list.id) }}">
+          <div class="list-preview-movies">
+            {% if list.posters %}
+              {% for poster in list.posters %}
+                {% if poster %}
+                <div class="poster-wrapper list-poster">
+                  <img
+                    src="{{ poster if poster.startswith('/static') else 'https://image.tmdb.org/t/p/w92' ~ poster }}"
+                    alt="poster"
+                  >
+                </div>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          </div>
+        </a>
+        <header class="list-preview-info">
+          <a href="{{ url_for('list_details', list_id=list.id) }}">
+            <h3 class="list-name">{{ list.name }}</h3>
+          </a>
+          <p>Stworzona przez <span>{{ list.username }}</span></p>
+        </header>
+      </section>
+    {% else %}
+      <p>Wygląda na to, że jeszcze nie stworzono żadnej listy.</p>
+    {% endfor %}
+
+  </section>
+{% endblock %}
+
+

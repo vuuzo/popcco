@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<h1 class="highlight">Obejrzane filmy</h1>
+
+{% if movies %}
+  <section class="movies-grid">
+  {% for movie in movies %}
+    <div>
+      <div class="poster-wrapper">
+      <img
+        src="{{ movie.poster_path if movie.poster_path.startswith('/static')
+        else 'https://image.tmdb.org/t/p/w200' ~ movie.poster_path }}"
+      >
+        <a href="{{ url_for('movie', id=movie.tmdb_id) }}"></a>
+      </div>
+
+      <div>
+        {% if movie.rating %} {{ movie.rating*'★' }} {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+  </section>
+{% else %}
+  <p>Wygląda na to, że jeszcze nic nie obejrzaleś!</p>
+{% endif %}
+
+{% endblock %}

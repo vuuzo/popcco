@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{{ super() }}
+{% block body %}
+<h1>{{ movie.title }}</h1>
+<p>{{movie.id}}</p>
+<p>{{ movie.overview }}</p>
+
+
+{% if session.get('user_id') %}
+<!-- czy jest na watchlist -->
+<!-- ===================== -->
+{% if on_watchlist %}
+  <form action="{{ url_for('remove_from_watchlist', movie_id=movie.id) }}" method="POST">
+    <button type="submit"">Usuń z Do Obejrzenia</button>
+  </form>
+{% else %}
+  <form action="{{ url_for('add_to_watchlist', movie_id=movie.id) }}" method="POST">
+    <button type="submit"">Chcę Obejrzeć</button>
+  </form>
+{% endif %}
+<!-- ===================== -->
+<!-- czy zostal obejrzany  -->
+<!-- ===================== -->
+{% if user_data.watched_at %}
+  <form action="{{ url_for('remove_watched', movie_id=movie.id) }}" method="POST">
+    <button type="submit">Obejrzano</button>
+  </form>
+{% else %}
+  <form action="{{ url_for('mark_watched', movie_id=movie.id) }}" method="POST">
+    <button type="submit">Dodaj do Obejrzanych</button>
+  </form>
+{% endif %}
+<!-- ===================== -->
+<!-- dodaj do listy        -->
+<!-- ===================== -->
+{% if lists %}
+            <form action="{{ url_for('add_to_list', movie_id=movie.id) }}" method="POST">
+                <label for="list_id">Dodaj do listy:</label>
+                <select name="list_id" id="list_id">
+                    {% for list in lists %}
+                        <option value="{{ list.id }}">{{ list.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Dodaj</button>
+            </form>
+        {% else %}
+            <p>Nie masz jeszcze żadnych list.</p>
+            <a href="{{ url_for('create_list') }}">Stwórz swoją pierwszą listę</a>
+        {% endif %}
+<!-- ===================== -->
+{% if user_data.watched_at %}
+<p>{{user_data.watched_at}}</p>
+{%else%}
+<p>[jak obejrzysz ten film to tutaj pojawi się data]</p>
+{% endif %}
+
+<form action="{{ url_for('mark_watched', movie_id=movie.id) }}" method="POST">
+    <div class="rating-group">
+        <label for="rating">Twoja ocena (1-5):</label>
+        <select name="rating" id="rating">
+            <option value="" {% if not user_data.rating %}selected{% endif %}>Brak oceny</option>
+            
+            {% for i in range(1, 6) %}
+                <option value="{{ i }}" {% if user_data.rating == i %} selected {% endif %}>
+                    {{ i }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <button type="submit">
+       {% if user_data.rating %}Aktualizuj ocenę{% else %}Oceń{% endif %}
+    </button>
+</form>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+      <div class="message {{ category }}">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<h4>Komentarze ({{ comments|length }})</h4>
+<form action="{{ url_for('add_comment', movie_id=movie.id) }}" method="POST">
+  <textarea name="content" id="content"></textarea>
+  <button type="submit">Dodaj komentarz</button>
+</form>
+
+
+<div>
+    {% if comments %}
+        {% for comment in comments %}
+            <div>
+                <div class="comment">
+                  {% if comment.username == session.get('username') %}
+                  <form
+                    action="{{ url_for('remove_comment', movie_id=movie.id) }}"
+                    method="POST"
+                  >
+                    <button type="submit">Usuń</button>
+                  </form>
+                  {% endif %}
+                    <div>
+                      <h4>@{{ comment.username }}</h4>
+                      <small>{{ comment.created_at }} {% if comment.rating %} {{ comment.rating*'★'}} {% endif %}</small>
+                    </div>
+                    <p>{{ comment.content }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Brak komentarzy pod tym filmem.</p>
+    {% endif %}
+</div>
+
+
+{% else %}
+<p><a href="{{url_for('login')}}">Zaloguj się</a> żeby oceniać.</p>
+{% endif %}
+
+
+
+{% endblock %}

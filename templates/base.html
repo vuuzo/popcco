@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for("static", filename="style.css")}}">
+    <title>{% block title %}Popcco{% endblock %}</title>
+  </head>
+  <body>
+    <section id="container">
+    {% if request.endpoint not in ['login', 'register'] %}
+      <header id="navigation" class="center-content">
+        <section>
+         <a href="{{url_for('index')}}">
+           <img src="{{url_for("static", filename="/images/logo.svg")}}" alt="Popcco Logo">
+         </a>
+
+          <nav>
+            <ul class="nav-items">
+              {% if session.get('user_id') %}
+              <li id="item-user"><a href="">{{ session["username"] }}</a></li>
+
+              <li><a href="/movies">Moje Filmy</a></li>
+              <li><a href="/watchlist">Do Obejrzenia</a></li>
+              <li><a href="/lists">Listy</a></li>
+              <li class="item-separated"><a href="{{ url_for('logout') }}">Wyloguj</a></li>
+            {% else %}
+              <li><a href="{{ url_for('lists') }}">Listy</a></li>
+              <li class="item-separated"><a href="{{ url_for('login') }}">Zaloguj się</a></li>
+              <li><a href="{{ url_for('register') }}">Stwórz Konto</a></li>
+            {% endif %}
+            </ul>
+          </nav>
+        </section>
+      </header>
+    {% endif %}
+
+    <main>
+      {% block body %}
+      {% endblock %}
+    </main>
+
+    <footer class="center-content">
+      <section>
+        <small>Pamiętaj żeby w footerze dodać creditsy TMDB</small>
+      </section>
+    </footer>
+    </section>
+  </body>
+</html>
