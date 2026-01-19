@@ -111,6 +111,26 @@ input {
 	img {
 		display: block;
 	}
+
+	&:hover .action-wrapper {
+		opacity: 1;
+		transform: scale(1);
+		filter: blur(0);
+	}
+}
+
+.action-wrapper {
+	position: absolute;
+	padding: 4px;
+	width: 100%;
+	bottom: 0;
+	opacity: 0;
+	filter: blur(6px);
+	transform: scale(0.6);
+	transition:
+		transform 200ms,
+		opacity 170ms,
+		filter 170ms;
 }
 
 .movies-grid {

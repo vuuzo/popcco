@@ -1,41 +1,38 @@
 {% extends "base.html" %}
-{% block body %}
-<div class="container mt-4">
-  <h2 class="mb-4">Twoja lista do obejrzenia (Watchlist)</h2>
-  {% if not movies %}
-  <div class="alert alert-light border shadow-sm p-5 text-center">
-    <p class="lead">Twoja lista jest pusta.</p>
-    <a href="{{ url_for('search') }}" class="btn btn-primary">Szukaj filmów do dodania</a>
-  </div>
-  {% else %}
-  <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
-    {% for movie in movies %}
-    <div class="col">
-      <div class="card h-100 shadow-sm movie-card">
-        <a href="{{ url_for('movie', id=movie.tmdb_id) }}">
 
-      <img src="{{ movie.poster_path if movie.poster_path.startswith('/static')
-           else 'https://image.tmdb.org/t/p/w342' ~ movie.poster_path }}" 
-        </a>
-        <div class="card-body">
-          <h5 class="card-title text-truncate">{{ movie.title }}</h5>
-        </div>
-        <div class="card-footer bg-white border-top-0 d-grid gap-2">
-          <form action="{{ url_for('mark_watched', movie_id=movie.tmdb_id) }}" method="POST">
-            <button type="submit" class="btn btn-success btn-sm w-100">
-              <i class="fas fa-check"></i> Obejrzałem
-            </button>
-          </form>
-          <form action="{{ url_for('remove_from_watchlist', movie_id=movie.tmdb_id) }}" method="POST">
-            <button type="submit" class="btn btn-outline-danger btn-sm w-100">
-              Usuń
-            </button>
-          </form>
-        </div>
-      </div>
+{% block body %}
+
+  <h1 class="highlight">Twoja lista do obejrzenia</h1>
+
+  {% if not movies %}
+    <div>
+      <p>Twoja lista jest pusta.</p>
+      <a href="{{ url_for('search') }}">Szukaj filmów do dodania</a>
     </div>
-    {% endfor %}
-  </div>
+  {% else %}
+    <div class="movies-grid">
+      {% for movie in movies %}
+        <div class="poster-wrapper">
+            <img
+              src="{{ movie.poster_path if movie.poster_path.startswith('/static')
+                      else 'https://image.tmdb.org/t/p/w200' ~ movie.poster_path }}"
+            >
+            <a href="{{ url_for('movie', id=movie.tmdb_id) }}"></a>
+          <div class="action-wrapper">
+            <form action="{{ url_for('mark_watched', movie_id=movie.tmdb_id) }}" method="POST">
+              <button type="submit">
+                Obejrzałem
+              </button>
+            </form>
+            <form action="{{ url_for('remove_from_watchlist', movie_id=movie.tmdb_id) }}" method="POST">
+              <button type="submit">
+                Usuń
+              </button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
   {% endif %}
-</div>
+
 {% endblock %}
