@@ -96,9 +96,11 @@ input {
 }
 
 .poster-wrapper {
+	--poster-outer-radius: 8px;
+
 	position: relative;
 	overflow: hidden;
-	border-radius: 4px;
+	border-radius: var(--poster-outer-radius);
 	isolation: isolate;
 
 	&::before {
@@ -111,7 +113,29 @@ input {
 		pointer-events: none;
 		z-index: 2;
 	}
-
+	/* #test { */
+	/* 	bottom: 22px; */
+	/* 	left: 22px; */
+	/* 	position: absolute; */
+	/* 	background: none; */
+	/* 	border: none; */
+	/* 	&::after { */
+	/* 		position: absolute; */
+	/* 		content: ""; */
+	/* 		inset: 0; */
+	/* 		backdrop-filter: blur(10px); */
+	/* 		background: red; */
+	/* 	} */
+	/* 	&::before { */
+	/* 		position: absolute; */
+	/* 		content: ""; */
+	/* 		inset: 0; */
+	/* 		mix-blend-mode: soft-light; */
+	/* 		box-shadow: 0 0 0 1px white; */
+	/* 		border-radius: inherit; */
+	/* 		pointer-events: none; */
+	/* 	} */
+	/* } */
 	a {
 		position: absolute;
 		inset: 0;
@@ -125,6 +149,7 @@ input {
 		opacity: 1;
 
 		button {
+			pointer-events: auto;
 			transform: scale(1);
 			filter: blur(0);
 			opacity: 1;
@@ -139,84 +164,106 @@ input {
 
 .action-wrapper {
 	--bg-transition: 0ms;
+	--outer-space: 4px;
+	--radius-inner: calc(var(--poster-outer-radius) - var(--outer-space));
 
 	position: absolute;
-	display: flex;
-	justify-content: space-between;
-	padding: 4px;
-	width: 100%;
-	bottom: 0;
-
-	&::before,
-	&::after {
-		pointer-events: none;
-	}
-
-	&::before {
-		position: absolute;
-		backdrop-filter: blur(5px);
-		content: "";
-		inset: 0;
-
-		opacity: 0;
-		transition: opacity var(--bg-transition) ease-in-out;
-	}
-
-	&::after {
-		position: absolute;
-		content: "";
-		inset: 0;
-		border-top: 1px solid white;
-		mix-blend-mode: soft-light;
-
-		transition: opacity var(--bg-transition) ease-in-out;
-		opacity: 0;
-	}
+	inset: var(--outer-space);
+	pointer-events: none;
 
 	button {
-		padding: 0;
 		margin: 0;
-		aspect-ratio: 1;
+		padding: 0;
 		border: none;
 		background: none;
 
+		width: 40px;
+		height: 40px;
+		border-radius: var(--radius-inner);
+		display: grid;
+		place-content: center;
+
+		filter: blur(4px);
+		transform: scale(0.8);
 		opacity: 0;
-		filter: blur(10px);
-		transform: scale(0.4);
+
+		backdrop-filter: blur(10px);
+		background-color: hsl(from #000 h s l / 0.4);
 		transition:
-			transform 230ms,
+			transform 210ms,
 			opacity 210ms,
 			filter 210ms;
 
 		svg {
 			display: block;
+			position: relative;
+			z-index: 3;
+		}
+
+		&::before,
+		&::after {
+			position: absolute;
+			content: "";
+			pointer-events: none;
+			border-radius: inherit;
+			inset: 0;
+		}
+	}
+}
+
+.action-form {
+	position: absolute;
+	top: 0;
+}
+
+.action-icon-eye {
+	&[data-watched="true"] {
+		&:hover path,
+		&:hover circle {
+			opacity: 0.7;
 		}
 	}
 
-	button.mark {
-		color: var(--black-700);
-		&:hover svg {
-			fill: red;
+	&[data-watched="false"] {
+		path,
+		circle {
+			fill: #fff;
+		}
 
-			path {
-				fill: var(--brand);
-				stroke: var(--brand);
-			}
-			circle {
-				fill: var(--brand);
-				stroke: #333;
-			}
+		&:hover path,
+		&:hover circle {
+			fill: var(--brand);
+		}
+	}
+}
+
+.action-icon-save {
+	&[data-watchlist="true"] {
+		&:hover path {
+			opacity: 0.7;
 		}
 	}
 
-	button.remove {
-		&:hover svg {
-			fill: red;
-			path {
-				fill: none;
-			}
+	&[data-watchlist="false"] {
+		--fill: #fff;
+
+		path,
+		circle {
+			fill: var(--fill);
+		}
+
+		&:hover path {
+			fill: var(--brand);
 		}
 	}
+}
+
+.action-watched-form {
+	left: 0;
+}
+
+.action-saved-form {
+	right: 0;
 }
 
 .movies-grid {

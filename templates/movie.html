@@ -14,11 +14,11 @@
 <!-- ===================== -->
 {% if on_watchlist %}
   <form action="{{ url_for('remove_from_watchlist', movie_id=movie.id) }}" method="POST">
-    <button type="submit"">Usuń z Do Obejrzenia</button>
+    <button type="submit">Usuń z Do Obejrzenia</button>
   </form>
 {% else %}
   <form action="{{ url_for('add_to_watchlist', movie_id=movie.id) }}" method="POST">
-    <button type="submit"">Chcę Obejrzeć</button>
+    <button type="submit">Chcę Obejrzeć</button>
   </form>
 {% endif %}
 <!-- ===================== -->
