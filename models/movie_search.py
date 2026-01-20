@@ -6,5 +6,5 @@ class MovieSearchResult:
         self.poster_path = poster_path
 
     def __str__(self) -> str:
-        return f"{self.tmdb_id:<10} ({self.release_date or "None":<10}) {self.title} [{self.poster_path}]"
+        return f"{self.tmdb_id:<10} ({self.release_date or "Brak":<10}) {self.title} [{self.poster_path}]"
 

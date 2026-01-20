@@ -41,38 +41,10 @@ class TMDBService:
     def get_movie(self, tmdb_id: int) -> dict:
         return self._safe_get(f"{self.BASE_URL}/movie/{tmdb_id}")
 
-    # def __init__(self, api_key):
-    #     self.session = requests.session()
-    #     self.session.headers.update({
-    #         "accept": "application/json",
-    #         "Authorization": f"Bearer {api_key}"
-    #     }) 
-    #
-    # def search(self, query: str):
-    #     res = self.session.get(
-    #             f"{self.BASE_URL}/search/movie",
-    #             params={
-    #                 "query": query,
-    #                 "language": "en-US"
-    #                 }
-    #             )
-    #     res.raise_for_status()
-    #     return res.json().get("results", [])
-    #
-    # def get_movie(self, tmdb_id: int) -> dict:
-    #     res = self.session.get(
-    #         f"{self.BASE_URL}/movie/{tmdb_id}",
-    #         params={
-    #             "language": "en-US"
-    #         }
-    #     )
-    #     res.raise_for_status()
-    #     return res.json()
-
-    def get_poster_url(self, poster_path: str | None) -> str | None:
-        if not poster_path:
+    def get_image_url(self, path: str | None, size="w342") -> str | None:
+        if not path:
             return None
-        if poster_path.startswith("/static"):
-            return poster_path
-
-        return f"{self.IMAGE_BASE_URL}{poster_path}"
+        if path.startswith("/static"):
+            return path
+        
+        return f"https://image.tmdb.org/t/p/{size}{path}"

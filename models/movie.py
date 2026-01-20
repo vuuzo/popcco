@@ -15,5 +15,5 @@ class Movie:
         self.watched_at: datetime | None = None
 
     def __str__(self):
-        return f"[{self.tmdb_id}] {self.title} * Directed by {self.director}"
+        return f"[{self.tmdb_id}] {self.title}"
 

@@ -90,11 +90,6 @@ input {
 	}
 }
 
-.movie-rating-wrapper {
-	display: flex;
-	gap: 1px;
-}
-
 .poster-wrapper {
 	--poster-outer-radius: 8px;
 
@@ -113,29 +108,7 @@ input {
 		pointer-events: none;
 		z-index: 2;
 	}
-	/* #test { */
-	/* 	bottom: 22px; */
-	/* 	left: 22px; */
-	/* 	position: absolute; */
-	/* 	background: none; */
-	/* 	border: none; */
-	/* 	&::after { */
-	/* 		position: absolute; */
-	/* 		content: ""; */
-	/* 		inset: 0; */
-	/* 		backdrop-filter: blur(10px); */
-	/* 		background: red; */
-	/* 	} */
-	/* 	&::before { */
-	/* 		position: absolute; */
-	/* 		content: ""; */
-	/* 		inset: 0; */
-	/* 		mix-blend-mode: soft-light; */
-	/* 		box-shadow: 0 0 0 1px white; */
-	/* 		border-radius: inherit; */
-	/* 		pointer-events: none; */
-	/* 	} */
-	/* } */
+
 	a {
 		position: absolute;
 		inset: 0;
@@ -147,6 +120,7 @@ input {
 
 	&:hover .action-wrapper {
 		opacity: 1;
+		border-radius: 4px;
 
 		button {
 			pointer-events: auto;
@@ -159,6 +133,10 @@ input {
 		&::after {
 			opacity: 1;
 		}
+
+		.movie-rating-wrapper {
+			transform: translateY(0);
+		}
 	}
 }
 
@@ -170,6 +148,32 @@ input {
 	position: absolute;
 	inset: var(--outer-space);
 	pointer-events: none;
+
+	.movie-rating-wrapper {
+		width: 100%;
+		bottom: 0;
+		background-color: hsl(from #000 h s l / 0.4);
+		backdrop-filter: blur(10px);
+		padding: 6px;
+		border-radius: var(--radius-inner);
+		position: absolute;
+		display: flex;
+		justify-content: center;
+
+		gap: 1px;
+		transform: translateY(calc(100% + var(--outer-space)));
+		transition: transform 150ms cubic-bezier(0, 0, 0.2, 1);
+	}
+
+	&::before {
+		opacity: 0;
+		position: absolute;
+		inset: 0;
+		content: "";
+		box-shadow: 0 0 0 1px hsl(from #fff h s l);
+		border-radius: var(--radius-inner);
+		mix-blend-mode: soft-light;
+	}
 
 	button {
 		margin: 0;
@@ -253,7 +257,7 @@ input {
 		}
 
 		&:hover path {
-			fill: var(--brand);
+			fill: url("#paint0_linear_1008_140");
 		}
 	}
 }
@@ -486,5 +490,39 @@ form {
 			color: var(--success);
 			background-color: hsl(from var(--success) h s l / 0.08);
 		}
+	}
+}
+
+.movie-details {
+	display: grid;
+	gap: 1rem;
+	grid-template-columns: min-content 1fr 1fr;
+	grid-template-rows: 140px 1fr auto;
+	grid-template-areas:
+		"p t t"
+		"p . x"
+		"o . x";
+
+	.movie-details-poster {
+		grid-area: p;
+	}
+
+	.movie-details-title {
+		position: relative;
+		grid-area: t;
+		display: flex;
+		align-items: baseline;
+		gap: 1em;
+		position: relative;
+	}
+	.movie-details-overview {
+		grid-area: o;
+		width: 100%;
+	}
+	.movie-details-panel {
+		grid-area: x;
+		background-color: red;
+		width: 100%;
+		height: 100%;
 	}
 }

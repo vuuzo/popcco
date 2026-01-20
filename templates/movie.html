@@ -1,80 +1,105 @@
 {% extends 'base.html' %}
-{{ super() }}
-{% block body %}
-<section>
-  <h1>{{ movie.title }}</h1>
-  <p>{{ movie.release_date[:4] if movie.release_date else "Data nieznana"}}</p>
-</section>
-<p>{{movie.tagline if movie.tagline}}</p>
-<p>{{ movie.overview }}</p>
 
+{% block body %}
+
+<section class="movie-details">
+  <div class="movie-details-poster">
+    <div class="poster-wrapper">
+      <img
+        src="{{ movie.poster_path if movie.poster_path.startswith('/static')
+        else 'https://image.tmdb.org/t/p/w342' ~ movie.poster_path }}"
+      >
+    </div>
+  </div>
+
+  <section class="movie-details-title">
+    <h1 class="highlight">{{ movie.title }}</h1>
+    <p>{{ movie.release_date[:4] if movie.release_date else "Data nieznana"}}</p>
+  </section>
+
+  <section class="movie-details-overview">
+    <p>{{movie.tagline if movie.tagline}}</p>
+    <p>{{ movie.overview }}</p>
+  </section>
 
 {% if session.get('user_id') %}
-<!-- czy jest na watchlist -->
-<!-- ===================== -->
-{% if on_watchlist %}
-  <form action="{{ url_for('remove_from_watchlist', movie_id=movie.id) }}" method="POST">
-    <button type="submit">Usuń z Do Obejrzenia</button>
-  </form>
-{% else %}
-  <form action="{{ url_for('add_to_watchlist', movie_id=movie.id) }}" method="POST">
-    <button type="submit">Chcę Obejrzeć</button>
-  </form>
-{% endif %}
-<!-- ===================== -->
-<!-- czy zostal obejrzany  -->
-<!-- ===================== -->
-{% if user_data.watched_at %}
-  <form action="{{ url_for('remove_watched', movie_id=movie.id) }}" method="POST">
-    <button type="submit">Obejrzano</button>
-  </form>
-{% else %}
-  <form action="{{ url_for('mark_watched', movie_id=movie.id) }}" method="POST">
-    <button type="submit">Dodaj do Obejrzanych</button>
-  </form>
-{% endif %}
-<!-- ===================== -->
-<!-- dodaj do listy        -->
-<!-- ===================== -->
-{% if lists %}
-            <form action="{{ url_for('add_to_list', movie_id=movie.id) }}" method="POST">
-                <label for="list_id">Dodaj do listy:</label>
-                <select name="list_id" id="list_id">
-                    {% for list in lists %}
-                        <option value="{{ list.id }}">{{ list.name }}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit">Dodaj</button>
-            </form>
-        {% else %}
-            <p>Nie masz jeszcze żadnych list.</p>
-            <a href="{{ url_for('create_list') }}">Stwórz swoją pierwszą listę</a>
-        {% endif %}
-<!-- ===================== -->
-{% if user_data.watched_at %}
-<p>{{user_data.watched_at}}</p>
-{%else%}
-<p>[jak obejrzysz ten film to tutaj pojawi się data]</p>
-{% endif %}
+  <section class="movie-details-panel">
 
-<form action="{{ url_for('mark_watched', movie_id=movie.id) }}" method="POST">
-    <div class="rating-group">
-        <label for="rating">Twoja ocena (1-5):</label>
-        <select name="rating" id="rating">
-            <option value="" {% if not user_data.rating %}selected{% endif %}>Brak oceny</option>
-            
-            {% for i in range(1, 6) %}
-                <option value="{{ i }}" {% if user_data.rating == i %} selected {% endif %}>
-                    {{ i }}
-                </option>
+    <!-- czy zostal obejrzany  -->
+
+    {% if user_data.watched_at %}
+      <form action="{{ url_for('remove_watched', movie_id=movie.id) }}" method="POST">
+        <button type="submit">Obejrzano</button>
+      </form>
+    {% else %}
+      <form action="{{ url_for('mark_watched', movie_id=movie.id) }}" method="POST">
+        <button type="submit">Dodaj do Obejrzanych</button>
+      </form>
+    {% endif %}
+
+    <!-- czy jest na watchlist -->
+
+    {% if on_watchlist %}
+      <form action="{{ url_for('remove_from_watchlist', movie_id=movie.id) }}" method="POST">
+        <button type="submit">Usuń z Do Obejrzenia</button>
+      </form>
+    {% else %}
+      <form action="{{ url_for('add_to_watchlist', movie_id=movie.id) }}" method="POST">
+        <button type="submit">Chcę Obejrzeć</button>
+      </form>
+    {% endif %}
+
+    <!-- dodaj do listy -->
+
+    {% if lists %}
+      <form action="{{ url_for('add_to_list', movie_id=movie.id) }}" method="POST">
+        <label for="list_id">Dodaj do listy:</label>
+        <select name="list_id" id="list_id">
+            {% for list in lists %}
+                <option value="{{ list.id }}">{{ list.name }}</option>
             {% endfor %}
         </select>
-    </div>
-    
-    <button type="submit">
-       {% if user_data.rating %}Aktualizuj ocenę{% else %}Oceń{% endif %}
-    </button>
-</form>
+        <button type="submit">Dodaj</button>
+      </form>
+    {% else %}
+      <p>Nie masz jeszcze żadnych list.</p>
+      <a href="{{ url_for('create_list') }}">Stwórz swoją pierwszą listę</a>
+    {% endif %}
+
+
+    <form action="{{ url_for('mark_watched', movie_id=movie.id) }}" method="POST">
+      <div class="rating-group">
+        <label for="rating">Twoja ocena (1-5):</label>
+        <select name="rating" id="rating">
+          <option value="" {% if not user_data.rating %}selected{% endif %}>Brak oceny</option>
+          
+          {% for i in range(1, 6) %}
+              <option value="{{ i }}" {% if user_data.rating == i %} selected {% endif %}>
+                  {{ i }}
+              </option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <button type="submit">
+         {% if user_data.rating %}Aktualizuj ocenę{% else %}Oceń{% endif %}
+      </button>
+    </form>
+
+
+    <form action="{{ url_for('add_comment', movie_id=movie.id) }}" method="POST">
+      <textarea name="content" id="content"></textarea>
+      <button type="submit">Dodaj komentarz</button>
+    </form>
+
+  </section>
+{% else %}
+  <p><a href="{{url_for('login')}}">Zaloguj się</a> żeby oceniać.</p>
+{% endif %}
+
+</section>
+
+
 
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
@@ -89,11 +114,6 @@
 {% endwith %}
 
 <h4>Komentarze ({{ comments|length }})</h4>
-<form action="{{ url_for('add_comment', movie_id=movie.id) }}" method="POST">
-  <textarea name="content" id="content"></textarea>
-  <button type="submit">Dodaj komentarz</button>
-</form>
-
 
 <div>
     {% if comments %}
@@ -122,9 +142,6 @@
 </div>
 
 
-{% else %}
-<p><a href="{{url_for('login')}}">Zaloguj się</a> żeby oceniać.</p>
-{% endif %}
 
 
 
