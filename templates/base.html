@@ -7,6 +7,60 @@
     <title>{% block title %}Popcco{% endblock %}</title>
   </head>
   <body>
+
+    <svg width="0" height="0" style="position: absolute; overflow: hidden;" aria-hidden="true">
+  <defs>
+    <radialGradient id="popcorn-grad-body" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(17.3997 17.8231) rotate(90) scale(12.6857 13.9306)">
+      <stop offset="0.144231" stop-color="#FCD54A"/>
+      <stop offset="1" stop-color="#FBCA18"/>
+    </radialGradient>
+    <linearGradient id="popcorn-grad-top" x1="9.5" y1="19.5" x2="24" y2="20.5" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C97D03"/>
+      <stop offset="1" stop-color="#A96A04"/>
+    </linearGradient>
+
+    <linearGradient id="eye-grad-main" x1="7.99035" y1="4.46613" x2="7.99035" y2="11.5335" gradientUnits="userSpaceOnUse">
+        <stop offset="0.2" stop-color="#FCD54A"/>
+        <stop offset="0.9" stop-color="#FBC504"/>
+    </linearGradient>
+    <linearGradient id="eye-grad-pupil" x1="8" y1="7" x2="8" y2="9" gradientUnits="userSpaceOnUse">
+        <stop offset="0.2" stop-color="#FCD54A"/>
+        <stop offset="0.9" stop-color="#FBC504"/>
+    </linearGradient>
+
+    <linearGradient id="save-grad-main" x1="8" y1="2.5" x2="8" y2="13" gradientUnits="userSpaceOnUse">
+        <stop offset="0.1" stop-color="#FCD54A"/>
+        <stop offset="0.8" stop-color="#FBC504"/>
+    </linearGradient>
+  </defs>
+
+  <symbol id="icon-popcorn" viewBox="0 0 36 36">
+    <path d="M8 29.5C13.4683 32.2342 15.1399 28.9265 15.7955 25.3494C15.8795 24.8913 16.5033 24.7562 16.7748 25.1346C21.9392 32.3321 24.5607 28.4986 25.3742 25.0981C25.4477 24.7906 25.7745 24.6111 26.0804 24.6909C28.6412 25.3594 32.4827 24.1375 31 14.5C29.5079 4.80153 22.1023 8.5535 17.8661 12.2126C17.5328 12.5004 16.808 12.2967 16.6336 11.8924C16.23 10.956 15.4381 9.3969 14 6.99998C11 1.99998 4 7.99997 4 14C4 15.3261 5.32297 16.9204 6.77609 18.1106C7.14888 18.416 6.9681 19.1175 6.50325 19.2445C1.3356 20.6566 3.39598 27.198 8 29.5Z" fill="url(#popcorn-grad-body)"/>
+    <path d="M9.44846 12.7452C5.48914 18.1893 10.8376 17.2649 11.4317 19.1851C11.4438 19.2242 11.4486 19.2661 11.4481 19.3069C11.4357 20.2742 11.1236 20.9618 9.94846 21.7452C8.44846 22.7452 8.94846 25.7452 10.9485 26.7452C12.9485 27.7452 13.9485 23.2452 14.4485 22.2452C14.9485 21.2452 16.2124 22.7452 18.4485 22.7452C20.4485 22.7452 21.7232 21.02 20.4485 19.7452C20.1165 19.4133 18.6829 19.3017 17.7566 19.2642C17.3852 19.2492 17.1743 18.87 17.4144 18.5863C17.7285 18.2154 18.2208 17.7303 18.9485 17.2452C19.7608 16.7037 19.4485 16.2452 18.9485 15.2452C18.5032 14.3547 17.239 13.9547 16.4485 14.7452C15.6824 15.5113 15.5032 16.5709 15.4613 17.0246C15.4483 17.1652 15.3951 17.317 15.2615 17.3629C14.7459 17.5401 14.4485 16.3765 14.4485 15.7452C14.4485 14.2452 11.1633 10.3874 9.44846 12.7452Z" fill="url(#popcorn-grad-top)"/>
+  </symbol>
+
+  <symbol id="icon-eye" viewBox="0 0 16 16">
+    <path d="M2.20912 7.70929C4.15647 5.12283 8.82542 1.93928 13.7462 7.69562C13.8952 7.86994 13.9051 8.12847 13.7599 8.30597C11.6423 10.8919 6.77816 14.0548 2.22279 8.28937C2.08978 8.12101 2.08015 7.88073 2.20912 7.70929ZM8.00014 6.00031C6.89557 6.00031 6.00014 6.89574 6.00014 8.00031C6.00031 9.10473 6.89568 10.0003 8.00014 10.0003C9.10454 10.0002 9.99996 9.10468 10.0001 8.00031C10.0001 6.89578 9.10464 6.00038 8.00014 6.00031Z" 
+          fill="var(--eye-main, #fff)"/>
+    
+    <circle cx="8" cy="8" r="1" 
+            fill="var(--eye-pupil, #fff)"/>
+  </symbol>
+
+  <symbol id="icon-save" viewBox="0 0 16 16">
+    <path d="M11.5 3V12L8.59961 9.8252C8.24412 9.55868 7.75588 9.55868 7.40039 9.8252L4.5 12V3H11.5Z" stroke="none" stroke-linejoin="round"
+          fill="var(--save-main, #fff)"/>
+  </symbol>
+  <!-- <symbol id="icon-eye" viewBox="0 0 16 16"> -->
+  <!--   <path d="M2.20912 7.70929C4.15647 5.12283 8.82542 1.93928 13.7462 7.69562C13.8952 7.86994 13.9051 8.12847 13.7599 8.30597C11.6423 10.8919 6.77816 14.0548 2.22279 8.28937C2.08978 8.12101 2.08015 7.88073 2.20912 7.70929ZM8.00014 6.00031C6.89557 6.00031 6.00014 6.89574 6.00014 8.00031C6.00031 9.10473 6.89568 10.0003 8.00014 10.0003C9.10454 10.0002 9.99996 9.10468 10.0001 8.00031C10.0001 6.89578 9.10464 6.00038 8.00014 6.00031Z" fill="url(#eye-grad-main)"/> -->
+  <!--   <circle cx="8" cy="8" r="1" fill="url(#eye-grad-pupil)"/> -->
+  <!-- </symbol> -->
+  <!---->
+  <!-- <symbol id="icon-save" viewBox="0 0 16 16"> -->
+  <!--   <path d="M11.5 3V12L8.59961 9.8252C8.24412 9.55868 7.75588 9.55868 7.40039 9.8252L4.5 12V3H11.5Z" fill="url(#save-grad-main)" stroke="none" stroke-linejoin="round"/> -->
+  <!-- </symbol> -->
+</svg>
+
     <section id="container">
     {% if request.endpoint not in ['login', 'register'] %}
       <header id="navigation" class="center-content">

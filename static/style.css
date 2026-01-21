@@ -242,44 +242,45 @@ input {
 
 .action-icon-eye {
 	&[data-watched="true"] {
-		&:hover path,
-		&:hover circle {
-			opacity: 0.7;
-		}
+		--eye-main: url(#eye-grad-main);
+		--eye-pupil: url(#eye-grad-pupil);
+		/* &:hover path, */
+		/* &:hover circle { */
+		/* 	opacity: 0.7; */
+		/* } */
 	}
 
 	&[data-watched="false"] {
-		path,
-		circle {
-			fill: #fff;
-		}
-
-		&:hover path,
-		&:hover circle {
-			fill: var(--brand);
-			opacity: 0.7;
-		}
+		--eye-main: #fff;
+		--eye-pupil: #fff;
+		/* &:hover path, */
+		/* &:hover circle { */
+		/* 	fill: var(--brand); */
+		/* 	opacity: 0.7; */
+		/* } */
 	}
 }
 
 .action-icon-save {
-	&[data-watchlist="true"] {
-		&:hover path {
-			opacity: 0.7;
-		}
-	}
+	--save-main: url(#save-grad-main);
+	/* &[data-watchlist="true"] { */
+	/* 	&:hover path { */
+	/* 		opacity: 0.7; */
+	/* 	} */
+	/* } */
 
 	&[data-watchlist="false"] {
-		--fill: #fff;
-
-		path,
-		circle {
-			fill: var(--fill);
-		}
-
-		&:hover path {
-			fill: url("#paint0_linear_1008_140");
-		}
+		--save-main: #fff;
+		/* --fill: #fff; */
+		/**/
+		/* path, */
+		/* circle { */
+		/* 	fill: var(--fill); */
+		/* } */
+		/**/
+		/* &:hover path { */
+		/* 	fill: url("#paint0_linear_1008_140"); */
+		/* } */
 	}
 }
 
