@@ -38,7 +38,7 @@ class ListRepo:
         """Pobiera wszystkie listy wraz z maksymalnie 3 plakatami filmów dla każdej."""
         sql = """
             SELECT 
-                l.id, l.name, l.created_at, u.username,
+                l.id, l.name, l.created_at, u.username, u.avatar_url,
                 (SELECT GROUP_CONCAT(poster_path) FROM (
                     SELECT mc.poster_path 
                     FROM list_movies lm

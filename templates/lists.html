@@ -4,7 +4,7 @@
 
   {% if session.get("user_id") %}
     <section>
-      <h2 class="highlight">Twoje listy</h2>
+      <h2 class="subheading">Twoje listy</h2>
       <a href="{{ url_for('create_list') }}">Stwórz nową listę</a>
       
       {% if user_lists %}
@@ -23,7 +23,7 @@
 
 
   <section>
-    <h2 class="highlight">Wszystkie listy</h2>
+    <h2 class="subheading">Wszystkie listy</h2>
 
     {% for list in lists %}
       <section class="list-container">
@@ -47,7 +47,13 @@
           <a href="{{ url_for('list_details', list_id=list.id) }}">
             <h3 class="list-name">{{ list.name }}</h3>
           </a>
-          <p>Stworzona przez <span>{{ list.username }}</span></p>
+          <a href="{{ url_for('profile', username=list.username) }}" class="created-by">
+            <p>Stworzona przez</p>
+            <div class="list-user-data">
+              <img class="list-preview-avatar avatar" src="{{list.avatar_url}}">
+              <span>{{ list.username }}</span>
+            </div>
+          </a>
         </header>
       </section>
     {% else %}

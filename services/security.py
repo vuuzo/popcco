@@ -10,17 +10,27 @@ class SecurityMiddleware:
         self.auth_routes = {'login', 'register'}
         self.public_routes = {
             'index', 'static', 'logout', 'movie', 'search', 
-            'lists', 'list_details', 'search'
+            'lists', 'list_details', 'search', 'profile'
         }
         
         # Rejestrujemy hook w aplikacji
         self.app.before_request(self.check_access)
 
     def check_access(self):
+        # WRÓĆ
+        # endpoint = request.endpoint
+        #
+        # # Ignorujemy żądania bez endpointu
+        # if not endpoint or endpoint == 'static':
+        #     return
+
+        if request.path.startswith('/static'):
+            return
+
         endpoint = request.endpoint
         
-        # Ignorujemy żądania bez endpointu
-        if not endpoint or endpoint == 'static':
+        # Jeśli endpoint nie istnieje (np. 404), niech Flask się tym zajmie standardowo
+        if not endpoint:
             return
 
         is_logged_in = 'user_id' in session

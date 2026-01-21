@@ -2,15 +2,33 @@
 
 {% block body %}
 
-<h1 class="highlight">Witaj w Popcco</h1>
-<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem ipsa
-  iusto cumque placeat voluptate. Beatae quasi impedit explicabo, suscipit
-  minima iure officia a?</p>
+<header style="min-height:30vh">
+    <h1 class="highlight">Twoje filmy. Twoje opinie. Twoja historia.</h1>
+</header>
 
-<section>
+<section style="padding-bottom:4rem">
   <form action="{{url_for('search')}}" method="GET">
-    <input class="search-input" type="search" name="q" placeholder="Co chcesz obejrzeć?" autocomplete="off">
+    <input class="search-input" style="margin: 0 auto" type="search" name="q" placeholder="Co chcesz obejrzeć?" autocomplete="off">
   </form>
+</section>
+
+<h2 class="subheading">Popularne filmy</h2>
+<section>
+  <div class="movies-grid">
+        {% for movie in movies %}
+            <a href="{{ url_for('movie', id=movie.tmdb_id) }}" class="movie-card">
+                <div class="poster-wrapper">
+                    {% if movie.poster_path %}
+                        <img src="https://image.tmdb.org/t/p/w342{{ movie.poster_path }}" 
+                             alt="{{ movie.title }}" loading="lazy">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/no_image.svg') }}" 
+                             alt="Brak zdjęcia">
+                    {% endif %}
+                </div>
+            </a>
+        {% endfor %}
+    </div>
 </section>
 
 {% endblock %}

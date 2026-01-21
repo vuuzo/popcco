@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for, g
 from db.database import Database
 from db.repos.list_repo import ListRepo
 from db.repos.movie_user_data import MovieUserData
@@ -8,6 +8,7 @@ from repos.movies_repo import MovieRepository
 from services.security import SecurityMiddleware
 from services.tmdb_adapter import TMDBAdapter
 from services.tmdb_service import TMDBService
+from services.cloudinary import CloudinaryService
 import os
 from dotenv import load_dotenv
 
@@ -15,7 +16,15 @@ load_dotenv()
 
 API_KEY = os.getenv("TMDB_API_KEY")
 FLASK_SECRET = os.getenv("FLASK_SECRET")
+CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME")
+CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
+CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
 
+_cloudinary_service = CloudinaryService(
+    CLOUDINARY_CLOUD_NAME, 
+    CLOUDINARY_API_KEY, 
+    CLOUDINARY_API_SECRET
+)
 
 app = Flask(__name__)
 app.secret_key = FLASK_SECRET
@@ -39,10 +48,23 @@ user_repo = UserRepo(db)
 watched = MovieRepository(_tmdb_adapter, _movie_user_data, _watchlist_repo, _list_repo)
 
 
+@app.before_request
+def load_user():
+    """
+    Pobiera użytkownika z bazy na podstawie sesji i zapisuje w g.user.
+    Dzięki temu w każdym szablonie HTML mamy dostęp do {{ g.user }}.
+    """
+    user_id = session.get("user_id")
+    
+    if user_id:
+        g.user = user_repo.get_by_id(user_id)
+    else:
+        g.user = None
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    popular_movies = watched.get_popular_movies()
+    return render_template("index.html", movies=popular_movies)
 
 
 # =============
@@ -100,6 +122,78 @@ def logout():
     session.clear()
     return redirect(url_for("index"))
 
+
+# =============
+# USER
+# =============
+
+@app.route("/profile/<username>")
+def profile(username):
+    profile_user = user_repo.get_by_username(username)
+    
+    if not profile_user:
+        flash("Użytkownik nie istnieje", "error")
+        return redirect(url_for('index'))
+
+    viewer_id = session.get("user_id")
+    is_owner = False
+
+    stats = user_repo.get_all_user_stats(profile_user.id)
+    
+    if viewer_id:
+        is_owner = (int(viewer_id) == profile_user.id)
+
+    return render_template("profile.html", 
+                           user=profile_user, 
+                           is_owner=is_owner,
+                           stats=stats)
+
+@app.route("/profile/upload", methods=["POST"])
+def upload_avatar():
+    user_id = int(session["user_id"])
+    username = session.get("username")
+
+    if 'avatar' not in request.files:
+        flash("Nie przesłano pliku", "error")
+        return redirect(url_for('profile'))
+    
+    file = request.files['avatar']
+    
+    unique_filename = f"user_{user_id}"
+    
+    image_url = _cloudinary_service.upload(file, user_id=unique_filename)
+
+    if image_url:
+        user_repo.update_avatar(user_id, image_url)
+        session["avatar"] = image_url 
+        flash("Zdjęcie profilowe zaktualizowane!", "success")
+
+    return redirect(url_for('profile', username=username))
+
+# def upload_avatar():
+#     user_id = int(session["user_id"])
+#
+#     if 'avatar' not in request.files:
+#         flash("Nie przesłano pliku", "error")
+#         return redirect(url_for('profile'))
+#
+#     file = request.files['avatar']
+#
+#     unique_filename = f"user_{user_id}"
+#
+#     image_url = _cloudinary_service.upload(file, user_id=unique_filename)
+#
+#     if image_url:
+#         # WRÓĆ
+#         # Ponieważ URL może być keszowany przez przeglądarkę, warto dodać
+#         # na końcu losowy parametr (np. timestamp), żeby wymusić odświeżenie w HTML.
+#         # Ale w bazie zapisujemy czysty URL.
+#         user_repo.update_avatar(user_id, image_url)
+#         flash("Zdjęcie profilowe zaktualizowane!", "success")
+#     else:
+#         flash("Wystąpił błąd podczas wysyłania zdjęcia.", "error")
+#
+#     return redirect(url_for('profile'))
 
 # =============
 # MOVIES

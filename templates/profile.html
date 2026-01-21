@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div>
+    
+    <div>
+        <section class="avatar-section">
+          <div class="profile-avatar avatar">
+            <img src="{{ user.display_avatar }}" alt="{{ user.username }}">
+
+
+          </div>
+        </section>
+
+            {% if is_owner %}
+                <form
+                  action="{{ url_for('upload_avatar') }}"
+                  method="POST"
+                  enctype="multipart/form-data"
+                >
+                    <label
+                      for="avatar_input"
+                    >
+                        Zmień zdjęcie
+                    </label>
+                    <input
+                      id="avatar_input"
+                      type="file"
+                      name="avatar"
+                      accept="image/*" 
+                      style="display:none;"
+                      onchange="this.form.submit()"
+                    >
+                </form>
+            {% endif %}
+        <div class="info-section">
+            <h1 class="highlight">{{ user.username }}</h1>
+            <p>Dolączono {{ user.created_at }}</p>
+            
+            {% if user.bio %}
+              <p>{{ user.bio }}</p>
+            {% endif %}
+
+            <p>Listy: {{ stats.lists_count }}</p>
+            <p>Obejrzanych: {{ stats.watched_count }}</p>
+            <p>Do Obejrzenia: {{ stats.watchlist_count }}</p>
+            <p>Komentarzy: {{ stats.comments_count }}</p>
+
+        </div>
+    </div>
+
+    {% if lists %}
+    <div style="margin-top: 2rem;">
+        <h3>Listy użytkownika {{ user.username }}</h3>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

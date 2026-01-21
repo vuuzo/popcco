@@ -11,29 +11,6 @@ class Database:
         conn.row_factory = sqlite3.Row
         return conn
 
-    # def _init_db(self):
-    #     try:
-    #         with open(self.schema_path, 'r') as f:
-    #             schema = f.read()
-    #         with self._get_connection() as conn:
-    #             conn.executescript(schema)
-    #     except FileNotFoundError:
-    #         print(f"BLĄD: Nie znaleziono pliku.")
-    #
-    # def fetch_all(self, query, params=()):
-    #     with self._get_connection() as conn:
-    #         return conn.execute(query, params).fetchall()
-    #
-    # def fetch_one(self, query, params=()):
-    #     with self._get_connection() as conn:
-    #         return conn.execute(query, params).fetchone()
-    #
-    # def execute(self, query, params=()):
-    #     with self._get_connection() as conn:
-    #         cur = conn.execute(query, params)
-    #         conn.commit()
-    #         return cur
-
     def _init_db(self):
         try:
             with open(self.schema_path, 'r') as f:

@@ -6,11 +6,11 @@
 
 [ ] Statystyki filmu (liczba dodanych do obejrzenia/obejrzanych) na podstawie
     danych z bazy
-[ ] Widok profilu użytkownika
-[ ] Możliwość dodania avatara profilu użytkownika (Cloudinary)
-[ ] 
+[X] Widok profilu użytkownika
 [ ] Slider do ocen filmów
+[X] Możliwość dodania avatara profilu użytkownika (Cloudinary)
 
 # POPRAWIĆ
+[ ] Memory Usage
 [ ] UI Niektórych stron
 [ ] Pagination dla /search

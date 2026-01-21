@@ -17,13 +17,14 @@
 
           <nav>
             <ul class="nav-items">
-              {% if session.get('user_id') %}
+              {% if g.user %}
               <details class="user-dropdown">
                 <summary>
+                  <div class="navigation-avatar avatar"><img src="{{ g.user.display_avatar }}"></div>
                   <span>{{session["username"]}}</span>
                 </summary>
                 <ul>
-                  <li><a href="{{ url_for('index') }}">Profil</a></li>
+                  <li><a href="{{ url_for('profile', username=session["username"]) }}">Profil</a></li>
                   <li><a href="{{ url_for('logout') }}">Wyloguj</a></li>
                 </ul>
               </details>
@@ -45,15 +46,11 @@
     <main>
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-          <div class="flash-messages">
-            <section>
             {% for category, message in messages %}
               <div class="message {{ category }}">
                 {{ message }}
               </div>
             {% endfor %}
-            </section>
-          </div>
         {% endif %}
       {% endwith %}
 
@@ -67,5 +64,25 @@
       </section>
     </footer>
     </section>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        
+        const messages = document.querySelectorAll('.message');
+
+        if (messages.length > 0) {
+          setTimeout(function() {
+            messages.forEach(function(msg) {
+              msg.style.transition = "transform 150ms ease-out";
+              msg.style.transform = "translate(-50%, calc(-100% - var(--top)))"
+
+              setTimeout(function() {
+                msg.remove();
+              }, 500); 
+            });
+          }, 3000);
+        }
+      });
+    </script>
   </body>
 </html>
