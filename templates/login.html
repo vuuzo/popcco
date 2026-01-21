@@ -16,18 +16,6 @@
     <button type="submit">Zaloguj się</button>
   </form>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <div class="flash-messages">
-        {% for category, message in messages %}
-        <div class="message {{ category }}">
-          {{ message }}
-        </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endwith %}
-
   <p>Nie masz jeszcze konta? <a href="{{url_for('register')}}">Stwórz je</a>.</p>
 </section>
 

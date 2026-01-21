@@ -1,42 +1,185 @@
 from db.repos.list_repo import ListRepo
 from db.repos.movie_user_data import MovieUserData
 from db.repos.watchlist_repo import WatchlistRepo
+from models.movie_search import MovieSearchResult
 from services.tmdb_adapter import TMDBAdapter
+from models.movie import Movie
 
 class MovieRepository:
-    def __init__(self, tmdb: TMDBAdapter, user_data: MovieUserData, watchlist_repo: WatchlistRepo, list_repo: ListRepo):
-        self.tmdb = tmdb
-        self.user_data = user_data
-        self.watchlist_repo = watchlist_repo
-        self.list_repo = list_repo
+    def __init__(self, 
+                 tmdb_adapter: TMDBAdapter, 
+                 movie_user_dao: MovieUserData, 
+                 watchlist_dao: WatchlistRepo, 
+                 list_dao: ListRepo):
+        self.tmdb = tmdb_adapter
+        self.user_dao = movie_user_dao
+        self.watchlist = watchlist_dao
+        self.list_dao = list_dao
+
+    def search(self, query: str, page=1) -> MovieSearchResult:
+        raw_data = self.tmdb.search_movies(query, page)
+        return MovieSearchResult.from_tmdb(raw_data)
 
     def _ensure_movie_info(self, tmdb_id: int):
         """
         Zapewnia, że dane o filmie są w cache.
         Jeśli ich nie ma - pobiera z API i zapisuje.
         """
-        cached = self.user_data.get_movie_from_cache(tmdb_id)
+        cached = self.user_dao.get_movie_from_cache(tmdb_id)
         if cached:
             return
 
         api_data = self.tmdb.get_movie(tmdb_id)
-        title = api_data.get('title') or "Nieznany Tytuł"
+        title = api_data.get('title') or api_data.get('original_title') or "Nieznany Tytuł"
         poster = api_data.get('poster_path') or "/static/images/no_image.svg" 
 
-        self.user_data._update_cache(tmdb_id, title, poster)
+        self.user_dao._update_cache(tmdb_id, title, poster)
 
-    def add_to_watchlist(self, user_id: int, tmdb_id: int):
+    # FILMY
+    def get_popular_movies(self) -> list[Movie]:
+        raw_data = self.tmdb.get_popular()
+        return [Movie.from_tmdb(item) for item in raw_data.get('results', [])]
+
+    def get_movie_details(self, tmdb_id: int, user_id: int | None = None) -> Movie:
+        """
+        Pobiera pełne dane o filmie. 
+        Jeśli user_id jest podane, uzupełnia o dane użytkownika (czy obejrzany, ocena).
+        """
+
+        tmdb_data = self.tmdb.get_movie(tmdb_id)
+        movie = Movie.from_tmdb(tmdb_data)
+
+        # Jeśli użytkownik istnieje dodajemy dane z bazy
+        if user_id:
+            user_details = self.user_dao.get_user_movie_details(user_id, tmdb_id)
+            is_on_watchlist = self.watchlist.is_on_watchlist(user_id, tmdb_id)
+            
+            movie.is_on_watchlist = is_on_watchlist
+            if user_details:
+                movie.rating = user_details['rating']
+                movie.watched_at = user_details['watched_at']
+
+        return movie
+
+    # KOMENTARZE
+    def get_comments(self, tmdb_id: int):
+        """Pobiera komentarze (deleguje do DAO)"""
+        return self.user_dao.get_all_comments(tmdb_id)
+        
+    def add_comment(self, user_id: int, tmdb_id: int, content: str):
+        """Dodaje komentarz"""
         self._ensure_movie_info(tmdb_id)
-        self.watchlist_repo.add(user_id, tmdb_id)
+        self.user_dao.add_comment(user_id, tmdb_id, content)
 
-    def mark_as_watched(self, user_id: int, tmdb_id: int, rating: int | None = None):
+    def remove_comment(self, user_id: int, tmdb_id: int):
+        self.user_dao.remove_comment(user_id, tmdb_id)
+
+    # LISTY
+    def get_user_lists(self, user_id: int):
+        """Pobiera wyłącznie listy użytkownika"""
+        return self.list_dao.get_user_lists(user_id)
+
+    def get_all_lists(self):
+        """Pobiera wszystkie publiczne listy"""
+        return self.list_dao.get_all_lists()
+
+    def create_list(self, user_id: int, name: str, description: str):
+        self.list_dao.create_list(user_id, name, description)
+
+    def get_list_details(self, list_id: int):
+        """Zwraca nazwę, opis oraz właściciel listy."""
+        return self.list_dao.get_list(list_id)
+
+    def get_list_movies(self, list_id: int) -> list[Movie]:
+        """Pobiera filmy z konkretnej listy."""
+        # WRÓĆ
+        # Tu też można by zmapować na obiekty Movie, na razie zwracamy surowe dane z repo
+        return self.list_dao.get_list_movies(list_id)
+
+    def add_to_list(self, list_id: int, user_id: int, tmdb_id: int):
         self._ensure_movie_info(tmdb_id)
-        self.user_data.add_to_watched(user_id, tmdb_id, rating)
+        self.list_dao.add_movie_to_list(list_id, user_id, tmdb_id)
 
+    def remove_from_list(self, list_id: int, user_id: int, tmdb_id: int):
+        """ Usuwa film z listy, sprawdza czy lista należy do użytkownika. """
+        movie_list = self.list_dao.get_list(list_id)
+        if not movie_list or movie_list['user_id'] != user_id:
+            return False
+            
+        self.list_dao.remove_movie(list_id, tmdb_id)
+        return True
+
+    def delete_list(self, list_id: int, user_id: int) -> bool:
+        """Usuwa listę."""
+        movie_list = self.list_dao.get_list(list_id)
+        if movie_list and movie_list['user_id'] == user_id:
+            self.list_dao.delete_list(list_id, user_id)
+            return True
+        return False
+
+    # DO OBEJRZENIA (WATCHLIST)
+    def get_user_watchlist(self, user_id: int) -> list[Movie]:
+        rows = self.watchlist.get(user_id)
+        # WRÓĆ
+        #
+        # movies = []
+        # for row in rows:
+        #     m = Movie(
+        #         tmdb_id=row['tmdb_id'],
+        #         title=row['title'],
+        #         poster_path=row['poster_path'],
+        #         is_on_watchlist=True,
+        #         watched_at="DATE" if row.get('is_watched') else None 
+        #     )
+        #     movies.append(m)
+        # return movies
+        return [Movie.from_db_row(row) for row in rows]
+
+    def add_to_watchlist(self, user_id: int, tmdb_id: int) -> bool:
+        """
+        Dodaje do watchlisty. Zwraca False, jeśli film już tam był.
+        """
+        if self.watchlist.is_on_watchlist(user_id, tmdb_id):
+            return False
+        
+        self._ensure_movie_info(tmdb_id)
+        self.watchlist.add(user_id, tmdb_id)
+        return True
+
+    def remove_from_watchlist(self, user_id: int, tmdb_id: int):
+        self.watchlist.remove(user_id, tmdb_id)
+
+    # OBEJRZANE
     def remove_from_watched(self, user_id: int, tmdb_id: int):
         """Usuwa film oraz powiązany z nim komentarz z danych użytkownika."""
-        self.user_data.remove_from_watched(user_id, tmdb_id)
+        self.user_dao.remove_from_watched(user_id, tmdb_id)
 
-    def add_to_custom_list(self, list_id: int, user_id: int, tmdb_id: int):
+    def get_user_movies(self, user_id: int) -> list[Movie]:
+        rows = self.user_dao.get_user_movies(user_id)
+        return [Movie.from_db_row(row) for row in rows]
+
+    # WRÓĆ
+    # def mark_as_watched(self, user_id: int, tmdb_id: int, rating: int | None = None):
+    #     self._ensure_movie_info(tmdb_id)
+    #     self.user_dao.add_to_watched(user_id, tmdb_id, rating)
+
+
+    def mark_as_watched(self, user_id: int, tmdb_id: int, rating: int | None = None) -> bool:
+        """
+        Zapisuje film jako obejrzany.
+        Zwraca: True    jeśli to była aktualizacja (film już był obejrzany),
+                False   jeśli to nowe obejrzenie (wtedy usuwa też z watchlisty).
+        """
+        already_watched = self.user_dao.is_watched(user_id, tmdb_id)
+        
         self._ensure_movie_info(tmdb_id)
-        self.list_repo.add_movie_to_list(list_id, user_id, tmdb_id)
+        self.user_dao.add_to_watched(user_id, tmdb_id, rating)
+        
+        if not already_watched:
+            # Jeśli film nie był wcześniej oglądany, usuń go z watchlisty.
+            self.watchlist.remove(user_id, tmdb_id)
+            return False
+        
+        return True
+
+

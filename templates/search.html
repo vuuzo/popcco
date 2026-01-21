@@ -7,9 +7,9 @@
   </form>
 </section>
 
-<h2>Wyniki dla "{{ query }}"</h2>
+<h2>[{{search_data.total_results}}] Wyniki dla "{{ query }}"</h2>
 <div class="search-results">
-  {% for movie in results %}
+  {% for movie in search_data.results %}
   <div class="movie-card">
       <div class="poster-wrapper">
         <img
@@ -32,5 +32,34 @@
   {% else %}
   <p>Brak wyników dla "{{ query }}".</p>
   {% endfor %}
+
+
+  {% if search_data.total_pages > 1 %}
+<div class="pagination">
+    
+    {% if search_data.page > 1 %}
+        <a href="{{ url_for('search', q=query, page=search_data.page - 1) }}" class="btn btn-secondary">
+            &larr; Poprzednia
+        </a>
+    {% else %}
+        <span class="btn disabled" style="visibility: hidden;">&larr; Poprzednia</span>
+    {% endif %}
+
+    <span class="current-page">
+        {{ search_data.page }} / {{ search_data.total_pages }}
+    </span>
+
+    {% if search_data.page < search_data.total_pages %}
+        <a href="{{ url_for('search', q=query, page=search_data.page + 1) }}" class="btn btn-secondary">
+            Następna &rarr;
+        </a>
+    {% else %}
+        <span class="btn disabled" style="visibility: hidden;">Następna &rarr;</span>
+    {% endif %}
+
+</div>
+{% endif %}
+
+
 </div>
 {% endblock %}

@@ -18,12 +18,19 @@
           <nav>
             <ul class="nav-items">
               {% if session.get('user_id') %}
-              <li id="item-user"><a href="">{{ session["username"] }}</a></li>
+              <details class="user-dropdown">
+                <summary>
+                  <span>{{session["username"]}}</span>
+                </summary>
+                <ul>
+                  <li><a href="{{ url_for('index') }}">Profil</a></li>
+                  <li><a href="{{ url_for('logout') }}">Wyloguj</a></li>
+                </ul>
+              </details>
 
               <li><a href="/movies">Moje Filmy</a></li>
               <li><a href="/watchlist">Do Obejrzenia</a></li>
               <li><a href="/lists">Listy</a></li>
-              <li class="item-separated"><a href="{{ url_for('logout') }}">Wyloguj</a></li>
             {% else %}
               <li><a href="{{ url_for('lists') }}">Listy</a></li>
               <li class="item-separated"><a href="{{ url_for('login') }}">Zaloguj się</a></li>
@@ -36,6 +43,20 @@
     {% endif %}
 
     <main>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-messages">
+            <section>
+            {% for category, message in messages %}
+              <div class="message {{ category }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+            </section>
+          </div>
+        {% endif %}
+      {% endwith %}
+
       {% block body %}
       {% endblock %}
     </main>

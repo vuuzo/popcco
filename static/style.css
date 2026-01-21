@@ -47,14 +47,14 @@ a {
 }
 
 input,
-select {
+select,
+textarea {
 	font-family: inherit;
 	font-size: 1rem;
 }
 
-input {
-	height: 36px;
-	padding: 0 12px;
+input,
+textarea {
 	border: none;
 	border-radius: 6px;
 	background-color: hsl(from var(--black-800) h s calc(l + 3));
@@ -70,6 +70,17 @@ input {
 	&:focus-visible {
 		outline: 2px solid hsl(from var(--brand) h s l / 0.5);
 	}
+}
+
+textarea {
+	resize: none;
+	/* field-sizing: content; */
+	padding: 12px;
+}
+
+input {
+	padding: 0 12px;
+	height: 36px;
 }
 
 #container {
@@ -237,6 +248,7 @@ input {
 		&:hover path,
 		&:hover circle {
 			fill: var(--brand);
+			opacity: 0.7;
 		}
 	}
 }
@@ -311,10 +323,45 @@ input {
 			display: flex;
 			gap: 1em;
 
-			#item-user {
-				font-weight: 400;
-				font-size: 1.1rem;
+			.user-dropdown {
+				position: relative;
 				margin-right: 1rem;
+
+				summary {
+					font-weight: 400;
+					font-size: 1.1rem;
+					list-style-type: none;
+					padding: 0;
+
+					span {
+						cursor: pointer;
+					}
+
+					&::-webkit-details-marker {
+						display: none;
+					}
+					&::before {
+						display: none;
+					}
+				}
+				&[open] > summary::before {
+					content: " ";
+					display: block;
+					position: fixed;
+					top: 0;
+					right: 0;
+					left: 0;
+					bottom: 0;
+					z-index: 1;
+				}
+
+				ul {
+					position: absolute;
+					list-style-type: none;
+					z-index: 2;
+					margin: 0;
+					padding: 0;
+				}
 			}
 
 			.item-separated {

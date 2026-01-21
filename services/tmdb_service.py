@@ -34,9 +34,20 @@ class TMDBService:
             print(f"Błąd TMDB Service: {e}")
             return {}
 
-    def search(self, query: str):
-        data = self._safe_get(f"{self.BASE_URL}/search/movie", params={"query": query})
-        return data.get("results", []) if data else []
+    def search(self, query: str, page=1):
+        return self._safe_get(f"{self.BASE_URL}/search/movie", {
+            "query": query, 
+            "page": page
+        })
+        return self._safe_get(f"{self.BASE_URL}/search/movie", {"query": query})
+
+    def get_popular_movies(self):
+        """Nowa metoda potrzebna dla widoku gościa."""
+        return self._safe_get(f"{self.BASE_URL}/movie/popular")
+    # WRÓĆ
+    # def search(self, query: str):
+    #     data = self._safe_get(f"{self.BASE_URL}/search/movie", params={"query": query})
+    #     return data.get("results", []) if data else []
 
     def get_movie(self, tmdb_id: int) -> dict:
         return self._safe_get(f"{self.BASE_URL}/movie/{tmdb_id}")

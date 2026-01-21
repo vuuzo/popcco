@@ -18,41 +18,34 @@
   </section>
 
   <section class="movie-details-overview">
-    <p>{{movie.tagline if movie.tagline}}</p>
-    <p>{{ movie.overview }}</p>
+    <p>{{movie.description}}</p>
   </section>
 
 {% if session.get('user_id') %}
   <section class="movie-details-panel">
 
-    <!-- czy zostal obejrzany  -->
-
-    {% if user_data.watched_at %}
-      <form action="{{ url_for('remove_watched', movie_id=movie.id) }}" method="POST">
+    {% if movie.is_watched %}
+      <form action="{{ url_for('remove_watched', movie_id=movie.tmdb_id) }}" method="POST">
         <button type="submit">Obejrzano</button>
       </form>
     {% else %}
-      <form action="{{ url_for('mark_watched', movie_id=movie.id) }}" method="POST">
+      <form action="{{ url_for('mark_watched', movie_id=movie.tmdb_id) }}" method="POST">
         <button type="submit">Dodaj do Obejrzanych</button>
       </form>
     {% endif %}
 
-    <!-- czy jest na watchlist -->
-
-    {% if on_watchlist %}
-      <form action="{{ url_for('remove_from_watchlist', movie_id=movie.id) }}" method="POST">
+    {% if movie.is_on_watchlist %}
+      <form action="{{ url_for('remove_from_watchlist', movie_id=movie.tmdb_id) }}" method="POST">
         <button type="submit">Usuń z Do Obejrzenia</button>
       </form>
     {% else %}
-      <form action="{{ url_for('add_to_watchlist', movie_id=movie.id) }}" method="POST">
+      <form action="{{ url_for('add_to_watchlist', movie_id=movie.tmdb_id) }}" method="POST">
         <button type="submit">Chcę Obejrzeć</button>
       </form>
     {% endif %}
 
-    <!-- dodaj do listy -->
-
     {% if lists %}
-      <form action="{{ url_for('add_to_list', movie_id=movie.id) }}" method="POST">
+      <form action="{{ url_for('add_to_list', movie_id=movie.tmdb_id) }}" method="POST">
         <label for="list_id">Dodaj do listy:</label>
         <select name="list_id" id="list_id">
             {% for list in lists %}
@@ -66,15 +59,14 @@
       <a href="{{ url_for('create_list') }}">Stwórz swoją pierwszą listę</a>
     {% endif %}
 
-
-    <form action="{{ url_for('mark_watched', movie_id=movie.id) }}" method="POST">
+    <form action="{{ url_for('mark_watched', movie_id=movie.tmdb_id) }}" method="POST">
       <div class="rating-group">
         <label for="rating">Twoja ocena (1-5):</label>
         <select name="rating" id="rating">
-          <option value="" {% if not user_data.rating %}selected{% endif %}>Brak oceny</option>
+          <option value="" {% if not movie.rating %}selected{% endif %}>Brak oceny</option>
           
           {% for i in range(1, 6) %}
-              <option value="{{ i }}" {% if user_data.rating == i %} selected {% endif %}>
+              <option value="{{ i }}" {% if movie.rating == i %} selected {% endif %}>
                   {{ i }}
               </option>
           {% endfor %}
@@ -82,12 +74,12 @@
       </div>
       
       <button type="submit">
-         {% if user_data.rating %}Aktualizuj ocenę{% else %}Oceń{% endif %}
+         {% if movie.rating %}Aktualizuj ocenę{% else %}Oceń{% endif %}
       </button>
     </form>
 
 
-    <form action="{{ url_for('add_comment', movie_id=movie.id) }}" method="POST">
+    <form action="{{ url_for('add_comment', movie_id=movie.tmdb_id) }}" method="POST">
       <textarea name="content" id="content"></textarea>
       <button type="submit">Dodaj komentarz</button>
     </form>
@@ -99,20 +91,6 @@
 
 </section>
 
-
-
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="flash-messages">
-      {% for category, message in messages %}
-      <div class="message {{ category }}">
-        {{ message }}
-      </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
-
 <h4>Komentarze ({{ comments|length }})</h4>
 
 <div>
@@ -122,7 +100,7 @@
                 <div class="comment">
                   {% if comment.username == session.get('username') %}
                   <form
-                    action="{{ url_for('remove_comment', movie_id=movie.id) }}"
+                    action="{{ url_for('remove_comment', movie_id=movie.tmdb_id) }}"
                     method="POST"
                   >
                     <button type="submit">Usuń</button>
@@ -140,9 +118,5 @@
         <p>Brak komentarzy pod tym filmem.</p>
     {% endif %}
 </div>
-
-
-
-
 
 {% endblock %}

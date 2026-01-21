@@ -15,7 +15,8 @@ class WatchlistRepo:
                 w.tmdb_id, 
                 mc.title, 
                 mc.poster_path,
-                CASE WHEN m.id IS NOT NULL THEN 1 ELSE 0 END AS is_watched,
+                m.watched_at,
+                -- CASE WHEN m.id IS NOT NULL THEN 1 ELSE 0 END AS is_watched,
                 1 AS is_on_watchlist
             FROM watchlist w
             JOIN movies_cache mc ON w.tmdb_id = mc.tmdb_id
