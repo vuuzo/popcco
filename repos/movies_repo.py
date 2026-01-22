@@ -13,7 +13,7 @@ class MovieRepository:
                  list_dao: ListRepo):
         self.tmdb = tmdb_adapter
         self.user_dao = movie_user_dao
-        self.watchlist = watchlist_dao
+        self.watchlist_dao = watchlist_dao
         self.list_dao = list_dao
 
     def search(self, query: str, page=1) -> MovieSearchResult:
@@ -32,8 +32,9 @@ class MovieRepository:
         api_data = self.tmdb.get_movie(tmdb_id)
         title = api_data.get('title') or api_data.get('original_title') or "Nieznany Tytuł"
         poster = api_data.get('poster_path') or "/static/images/no_image.svg" 
+        genres = api_data.get('genres', [])
 
-        self.user_dao._update_cache(tmdb_id, title, poster)
+        self.user_dao._update_cache(tmdb_id, title, poster, genres)
 
     # FILMY
     def get_popular_movies(self) -> list[Movie]:
@@ -52,7 +53,7 @@ class MovieRepository:
         # Jeśli użytkownik istnieje dodajemy dane z bazy
         if user_id:
             user_details = self.user_dao.get_user_movie_details(user_id, tmdb_id)
-            is_on_watchlist = self.watchlist.is_on_watchlist(user_id, tmdb_id)
+            is_on_watchlist = self.watchlist_dao.is_on_watchlist(user_id, tmdb_id)
             
             movie.is_on_watchlist = is_on_watchlist
             if user_details:
@@ -118,8 +119,9 @@ class MovieRepository:
         return False
 
     # DO OBEJRZENIA (WATCHLIST)
-    def get_user_watchlist(self, user_id: int) -> list[Movie]:
-        rows = self.watchlist.get(user_id)
+    def get_watchlist(self, user_id: int, genre: str | None = None, sort: str = "newest") -> list[Movie]:
+        return self.watchlist_dao.get(user_id, genre_filter=genre, sort_by=sort)
+        # rows = self.watchlist.get(user_id)
         # WRÓĆ
         #
         # movies = []
@@ -133,37 +135,43 @@ class MovieRepository:
         #     )
         #     movies.append(m)
         # return movies
-        return [Movie.from_db_row(row) for row in rows]
+        # return [Movie.from_db_row(row) for row in rows]
+
+    def get_watchlist_genres(self, user_id: int):
+        """Pobiera dostępne gatunki z watchlisty."""
+        return self.watchlist_dao.get_watchlist_genres(user_id)
 
     def add_to_watchlist(self, user_id: int, tmdb_id: int) -> bool:
         """
         Dodaje do watchlisty. Zwraca False, jeśli film już tam był.
         """
-        if self.watchlist.is_on_watchlist(user_id, tmdb_id):
+        if self.watchlist_dao.is_on_watchlist(user_id, tmdb_id):
             return False
         
         self._ensure_movie_info(tmdb_id)
-        self.watchlist.add(user_id, tmdb_id)
+        self.watchlist_dao.add(user_id, tmdb_id)
         return True
 
     def remove_from_watchlist(self, user_id: int, tmdb_id: int):
-        self.watchlist.remove(user_id, tmdb_id)
+        self.watchlist_dao.remove(user_id, tmdb_id)
 
     # OBEJRZANE
     def remove_from_watched(self, user_id: int, tmdb_id: int):
         """Usuwa film oraz powiązany z nim komentarz z danych użytkownika."""
         self.user_dao.remove_from_watched(user_id, tmdb_id)
 
-    def get_user_movies(self, user_id: int) -> list[Movie]:
-        rows = self.user_dao.get_user_movies(user_id)
-        return [Movie.from_db_row(row) for row in rows]
+    def get_user_genres(self, user_id: int):
+        """Zwraca listę wszystkich gatunków, jakie posiada użytkownik w swojej bibliotece"""
+        return self.user_dao.get_user_genres(user_id)
 
-    # WRÓĆ
-    # def mark_as_watched(self, user_id: int, tmdb_id: int, rating: int | None = None):
-    #     self._ensure_movie_info(tmdb_id)
-    #     self.user_dao.add_to_watched(user_id, tmdb_id, rating)
+    def get_user_movies(self, user_id: int, genre: str | None = None, sort: str = "newest"): 
+        """Pobiera filmy użytkownika, opcjonalnie filtrując po gatunku"""
+        return self.user_dao.get_user_movies(user_id, genre_filter=genre, sort_by=sort)
 
-
+    # def get_user_movies(self, user_id: int, genre_filter=None) -> list[Movie]:
+    #     rows = self.user_dao.get_user_movies(user_id, genre_filter)
+    #     return [Movie.from_db_row(row) for row in rows]
+    #
     def mark_as_watched(self, user_id: int, tmdb_id: int, rating: int | None = None) -> bool:
         """
         Zapisuje film jako obejrzany.
@@ -176,8 +184,7 @@ class MovieRepository:
         self.user_dao.add_to_watched(user_id, tmdb_id, rating)
         
         if not already_watched:
-            # Jeśli film nie był wcześniej oglądany, usuń go z watchlisty.
-            self.watchlist.remove(user_id, tmdb_id)
+            self.watchlist_dao.remove(user_id, tmdb_id)
             return False
         
         return True

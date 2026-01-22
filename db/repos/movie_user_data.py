@@ -1,4 +1,5 @@
 from models.movie import Movie
+from typing import Any
 
 
 class MovieUserData:
@@ -12,7 +13,7 @@ class MovieUserData:
             (tmdb_id,)
         )
 
-    def _update_cache(self, tmdb_id: int, title: str, poster_path: str):
+    def _update_cache(self, tmdb_id: int, title: str, poster_path: str, genres: list[dict]):
         """Metoda pomocnicza - upewnia się, że film jest w cache przed dodaniem relacji."""
         self.db.execute(
             """
@@ -25,6 +26,21 @@ class MovieUserData:
             """,
             (tmdb_id, title, poster_path)
         )
+
+        if genres:
+            for genre in genres:
+                g_id = genre['id']
+                g_name = genre['name']
+                
+                self.db.execute(
+                    "INSERT OR IGNORE INTO genres (id, name) VALUES (?, ?)", 
+                    (g_id, g_name)
+                )
+                
+                self.db.execute(
+                    "INSERT OR IGNORE INTO movie_genres (tmdb_id, genre_id) VALUES (?, ?)",
+                    (tmdb_id, g_id)
+                )
 
     def add_to_watched(self, user_id: int, tmdb_id: int, rating: int | None = None):
         """Zapisuje do obejrzanych. Jeśli już istnieje, aktualizuje tylko ocenę."""
@@ -80,25 +96,61 @@ class MovieUserData:
             WHERE m.user_id = ? AND m.tmdb_id = ?
         """, (user_id, tmdb_id))
 
-    def get_user_movies(self, user_id: int, order="watched_at"):
+    def get_user_genres(self, user_id: int):
+        """Pobiera listę unikalnych gatunków z filmów użytkownika."""
+        return self.db.fetch_all("""
+            SELECT DISTINCT g.name
+            FROM genres g
+            JOIN movie_genres mg ON g.id = mg.genre_id
+            JOIN movies m ON mg.tmdb_id = m.tmdb_id
+            WHERE m.user_id = ?
+            ORDER BY g.name ASC
+        """, (user_id,))
+
+    def get_user_movies(self, user_id: int, genre_filter: str | None = None, sort_by: str ="newest"):
         """Pobiera Historię Obejrzanych wraz z datą obejrzenia i oceną."""
-        return self.db.fetch_all(f"""
+
+        sort_options = {
+            "newest": "m.watched_at DESC",  # od najnowszych
+            "oldest": "m.watched_at ASC",   # od najstarszych
+            "rating_desc": "m.rating DESC", # najlepsze oceny
+            "rating_asc": "m.rating ASC"    # najgorsze oceny
+        }
+
+        order = sort_options.get(sort_by, "m.watched_at DESC")
+
+        sql = f"""
             SELECT 
                 m.tmdb_id, 
                 m.rating, 
                 m.watched_at, 
                 mc.title, 
                 mc.poster_path,
-                -- Sprawdzamy czy film jest w historii (zawsze True tutaj, bo to historia)
                 1 AS is_watched,
-                -- Sprawdzamy czy film istnieje w tabeli watchlist dla tego użytkownika
-                CASE WHEN w.tmdb_id IS NOT NULL THEN 1 ELSE 0 END AS is_on_watchlist
+                CASE WHEN w.tmdb_id IS NOT NULL THEN 1 ELSE 0 END AS is_on_watchlist,
+                GROUP_CONCAT(g.name, ',' ) as genres_str
             FROM movies m
             JOIN movies_cache mc ON m.tmdb_id = mc.tmdb_id
             LEFT JOIN watchlist w ON m.tmdb_id = w.tmdb_id AND w.user_id = ?
+            LEFT JOIN movie_genres mg ON mg.tmdb_id = mc.tmdb_id
+            LEFT JOIN genres g ON g.id = mg.genre_id
             WHERE m.user_id = ?
-            ORDER BY m.{order} DESC
-        """, (user_id, user_id))
+        """
+        params: list[Any] = [user_id, user_id]
+
+        if genre_filter and genre_filter != "all":
+            sql += """
+            AND EXISTS (
+                SELECT 1 FROM movie_genres mg2 
+                JOIN genres g2 ON mg2.genre_id = g2.id 
+                WHERE mg2.tmdb_id = m.tmdb_id AND g2.name = ?
+            )
+            """
+            params.append(genre_filter)
+
+        sql += f" GROUP BY m.tmdb_id ORDER BY {order}"
+        
+        return self.db.fetch_all(sql, tuple(params))
 
     def remove_from_watched(self, user_id: int, tmdb_id: int):
         """Usuwa obejrzany film oraz powiązane z nim dane."""

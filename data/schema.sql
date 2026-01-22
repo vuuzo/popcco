@@ -14,6 +14,19 @@ CREATE TABLE IF NOT EXISTS movies_cache (
     last_updated TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS genres (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS movie_genres (
+    tmdb_id INTEGER NOT NULL,
+    genre_id INTEGER NOT NULL,
+    FOREIGN KEY (tmdb_id) REFERENCES movies_cache(tmdb_id),
+    FOREIGN KEY (genre_id) REFERENCES genres(id),
+    PRIMARY KEY (tmdb_id, genre_id)
+);
+
 CREATE TABLE IF NOT EXISTS movies (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,

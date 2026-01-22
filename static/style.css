@@ -110,6 +110,10 @@ input {
 	}
 }
 
+.filter-container {
+	display: flex;
+}
+
 .poster-wrapper {
 	--poster-outer-radius: 8px;
 

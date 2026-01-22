@@ -1,11 +1,16 @@
 {% import "macros/buttons.html" as ui %}
 {% import "macros/elements.html" as element %}
+{% import "macros/filters.html" as filters %}
 
 {% extends 'base.html' %}
 
 {% block body %}
 
 <h1 class="subheading">Obejrzane filmy</h1>
+
+{% if movies or current_genre != 'all' %}
+  {{ filters.sort_filter(genres, current_genre, current_sort, context='movies') }}
+{% endif %}
 
 {% if movies %}
   <section class="movies-grid">

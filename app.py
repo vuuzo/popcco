@@ -203,9 +203,17 @@ def upload_avatar():
 def movies():
     user_id = int(session["user_id"])
 
-    user_movies = watched.get_user_movies(user_id)
+    genre = request.args.get("genre", "all")
+    sort = request.args.get("sort", "newest")
+
+    user_movies = watched.get_user_movies(user_id, genre=genre, sort=sort)
+    available_genres = watched.get_user_genres(user_id)
     
-    return render_template("movies.html", movies=user_movies)
+    return render_template("movies.html",
+                           movies=user_movies,
+                           genres=available_genres,
+                           current_genre=genre,
+                           current_sort=sort)
 
 @app.route("/movie/<int:id>")
 def movie(id):
@@ -268,12 +276,17 @@ def search():
 def watchlist():
     user_id = int(session["user_id"])
 
-    movies = watched.get_user_watchlist(user_id)
+    genre = request.args.get("genre", "all")
+    sort = request.args.get("sort", "newest")
 
-    for movie in movies:
-        print(movie.is_watched)
+    movies = watched.get_watchlist(user_id, genre=genre, sort=sort)
+    available_genres = watched.get_watchlist_genres(user_id)
 
-    return render_template("watchlist.html", movies=movies)
+    return render_template("watchlist.html",
+                           movies=movies,
+                           genres=available_genres,
+                           current_genre=genre,
+                           current_sort=sort)
 
 @app.route("/add_to_watchlist/<int:movie_id>", methods=["POST"])
 def add_to_watchlist(movie_id):

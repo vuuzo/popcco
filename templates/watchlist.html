@@ -1,4 +1,5 @@
 {% import "macros/buttons.html" as ui %}
+{% import "macros/filters.html" as filters %}
 
 {% extends "base.html" %}
 
@@ -6,21 +7,26 @@
 
   <h1 class="subheading">Twoja lista do obejrzenia</h1>
 
+
+  {% if movies or current_genre != 'all' %}
+    {{ filters.sort_filter(genres, current_genre, current_sort, context='watchlist') }}
+  {% endif %}
+
   {% if not movies %}
     <div>
       <p>Twoja lista jest pusta.</p>
       <a href="{{ url_for('search') }}">Szukaj filmów do dodania</a>
     </div>
   {% else %}
+
     <div class="movies-grid">
       {% for movie in movies %}
-        <div class="poster-wrapper">
+      <div class="poster-wrapper movie-item" data-genres="{{ movie.genres|join(',') }}">
             <img
               src="{{ movie.poster_path if movie.poster_path.startswith('/static')
                       else 'https://image.tmdb.org/t/p/w200' ~ movie.poster_path }}"
             >
             <a href="{{ url_for('movie', id=movie.tmdb_id) }}"></a>
-
 
           <div class="action-wrapper">
             {% if movie.is_watched %}
