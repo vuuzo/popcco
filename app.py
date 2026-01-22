@@ -407,5 +407,5 @@ def remove_from_list(list_id, movie_id):
 
 
 if __name__ in "__main__":
-    app.run(debug=True)
+    app.run(debug=True) # WRÓĆ - MEGA WAŻNE ZMIENIĆ NA FALSE PRZY ODDANIU PROJEKTU
 
