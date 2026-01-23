@@ -1,8 +1,8 @@
 # Wdrożyć
-- [ ] Widok zapisanych list przez użytkownika w `/lists`
 - [ ] Slider do ocen filmów
-- [ ] Pagination dla `/movies`, `/lists`, `/watchlist`
-- [ ] Element (*jinja macro*) pagination
+- [X] Widok zapisanych list przez użytkownika w `/lists`
+- [X] Pagination dla `/movies`, `/lists`, `/watchlist`
+- [X] Element (*jinja macro*) pagination
 - [X] Globalny rating do każdego filmu na podstawie ocen użytkowników
 - [X] Statystyki filmu (liczba dodanych do obejrzenia/obejrzanych) na podstawie danych z bazy
 - [X] Możliwość sortowania obejrzanych/zapisanych do obejrzenia filmów po rodzajach, dacie dodania
