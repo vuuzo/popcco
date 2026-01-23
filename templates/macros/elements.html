@@ -32,3 +32,34 @@
 </svg>
 {% endif %}
 {% endmacro %}
+
+<!-- PAGINATION -->
+{% macro render(pagination, endpoint) %}
+{% if pagination.total_pages > 1 %}
+  <div class="pagination">
+      
+      {# poprzednia #}
+      {% if pagination.page > 1 %}
+          <a href="{{ url_for(endpoint, page=pagination.page - 1, **pagination.params) }}" class="button secondary">
+              Poprzednia
+          </a>
+      {% else %}
+          <span class="button seconary disabled">Poprzednia</span>
+      {% endif %}
+
+      <span class="current-page" style="align-self: center;">
+          {{ pagination.page }} z {{ pagination.total_pages }}
+      </span>
+
+      {# nastepna #}
+      {% if pagination.page < pagination.total_pages %}
+          <a href="{{ url_for(endpoint, page=pagination.page + 1, **pagination.params) }}" class="button secondary">
+              Następna
+          </a>
+      {% else %}
+          <span class="button secondary disabled">Następna</span>
+      {% endif %}
+
+  </div>
+  {% endif %}
+{% endmacro %}

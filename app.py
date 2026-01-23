@@ -209,12 +209,15 @@ def movies():
 
     genre = request.args.get("genre", "all")
     sort = request.args.get("sort", "newest")
+    page = request.args.get("page", 1, type=int)
 
-    user_movies = watched.get_user_movies(user_id, genre=genre, sort=sort)
+    pagination = watched.get_user_movies(user_id, genre, sort, page)
+    # user_movies = watched.get_user_movies(user_id, genre=genre, sort=sort)
     available_genres = watched.get_user_genres(user_id)
     
     return render_template("movies.html",
-                           movies=user_movies,
+                           movies=pagination["items"],
+                           pagination=pagination,
                            genres=available_genres,
                            current_genre=genre,
                            current_sort=sort)
@@ -286,12 +289,14 @@ def watchlist():
 
     genre = request.args.get("genre", "all")
     sort = request.args.get("sort", "newest")
+    page = request.args.get("page", 1, type=int)
 
-    movies = watched.get_watchlist(user_id, genre=genre, sort=sort)
+    pagination = watched.get_watchlist(user_id, genre, sort, page)
     available_genres = watched.get_watchlist_genres(user_id)
 
     return render_template("watchlist.html",
-                           movies=movies,
+                           movies=pagination["items"],
+                           pagination=pagination,
                            genres=available_genres,
                            current_genre=genre,
                            current_sort=sort)
@@ -350,10 +355,18 @@ def remove_watched(movie_id):
 def lists():
     user_id = session.get("user_id")
 
-    lists = watched.get_all_lists()
-    user_lists = watched.get_user_lists(user_id) if user_id else None
+    page = request.args.get("page", 1, type=int)
 
-    return render_template("lists.html", lists=lists, user_lists=user_lists)
+    pagination = watched.get_all_lists(page)
+
+    user_lists = watched.get_user_lists(user_id) if user_id else None
+    followed_lists = watched.get_user_followed_lists(user_id) if user_id else None
+
+    return render_template("lists.html",
+                            lists=pagination["items"],
+                            pagination=pagination,
+                            user_lists=user_lists,
+                            followed_lists=followed_lists)
 
 @app.route("/list/new", methods=["POST", "GET"])
 def create_list():
@@ -393,13 +406,35 @@ def list_details(list_id):
         return redirect(url_for('lists'))
 
     movies = watched.get_list_movies(list_id)
+    list_stats = watched.get_list_social_stats(list_id, user_id)
     is_owner = user_id and custom_list["user_id"] == user_id
 
     return render_template("list_details.html", 
                            list=custom_list, 
                            movies=movies,
-                           is_owner=is_owner)
+                           is_owner=is_owner,
+                           stats=list_stats)
 
+
+@app.route("/list/<int:list_id>/follow", methods=["POST"])
+def follow_list(list_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for('login'))
+        
+    watched.follow_list(user_id, list_id)
+    flash("Zaobserwowano listę", "success")
+    return redirect(url_for('list_details', list_id=list_id))
+
+@app.route("/list/<int:list_id>/unfollow", methods=["POST"])
+def unfollow_list(list_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for('login'))
+
+    watched.unfollow_list(user_id, list_id)
+    flash("Przestałeś obserwować listę", "success")
+    return redirect(url_for('list_details', list_id=list_id))
 
 @app.route("/list/<int:list_id>/remove", methods=["POST"])
 def remove_list(list_id):

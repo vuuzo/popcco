@@ -1,3 +1,4 @@
+{% import "macros/elements.html" as pagination_element %}
 {% extends "base.html" %}
 {% block body %}
 
@@ -34,31 +35,7 @@
   {% endfor %}
 
 
-  {% if search_data.total_pages > 1 %}
-<div class="pagination">
-    
-    {% if search_data.page > 1 %}
-        <a href="{{ url_for('search', q=query, page=search_data.page - 1) }}" class="btn btn-secondary">
-            &larr; Poprzednia
-        </a>
-    {% else %}
-        <span class="btn disabled" style="visibility: hidden;">&larr; Poprzednia</span>
-    {% endif %}
-
-    <span class="current-page">
-        {{ search_data.page }} / {{ search_data.total_pages }}
-    </span>
-
-    {% if search_data.page < search_data.total_pages %}
-        <a href="{{ url_for('search', q=query, page=search_data.page + 1) }}" class="btn btn-secondary">
-            Następna &rarr;
-        </a>
-    {% else %}
-        <span class="btn disabled" style="visibility: hidden;">Następna &rarr;</span>
-    {% endif %}
-
-</div>
-{% endif %}
+  {{ pagination_element.render(search_data, 'search') }}
 
 
 </div>

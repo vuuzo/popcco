@@ -7,12 +7,10 @@ class MovieSearchResult:
     total_results: int
     total_pages: int
     results: list[Movie] = field(default_factory=list)
+    params: dict = field(default_factory=dict)
 
     @classmethod
     def from_tmdb(cls, data: dict):
-        """
-        Konwertuje odpowiedź API TMDB na obiekt domenowy.
-        """
         movies = [Movie.from_tmdb(item) for item in data.get('results', [])]
         
         return cls(

@@ -1,15 +1,36 @@
 {% extends 'base.html' %}
 {{ super() }}
 {% block body %}
-<h1>{{ list.name }}</h1>
-<p>{{list.description}}</p>
-{% if is_owner %}
-<div class="owner-actions">
-  <form action="{{ url_for('remove_list', list_id=list.id) }}" method="POST">
-    <button type="submit">Usuń listę</button>
-  </form>
+
+<section>
+  <h1>{{ list.name }}</h1>
+  <p>{{list.description}}</p>
+  <p>{{stats.followers_count}}</p>
+</section>
+
+<div class="actions">
+    {% if session.get('user_id') %}
+      {% if is_owner %}
+        <div class="owner-actions">
+          <form action="{{ url_for('remove_list', list_id=list.id) }}" method="POST">
+            <button type="submit">Usuń listę</button>
+          </form>
+        </div>
+      {% else %}
+        {% if stats.is_following %}
+          <form action="{{ url_for('unfollow_list', list_id=list.id) }}" method="POST">
+            <button type="submit">Przestań obserwować</button>
+          </form>
+        {% else %}
+          <form action="{{ url_for('follow_list', list_id=list.id) }}" method="POST">
+            <button type="submit">Obserwuj</button>
+          </form>
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  </div>
 </div>
-{% endif %}
+
 {% if movies %}
 <h3>Filmy na liście</h3>
 <ul class="list_movies">

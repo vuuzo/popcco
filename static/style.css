@@ -26,6 +26,16 @@ body {
 	font-weight: 100;
 
 	background-color: var(--black-800);
+	background-image:
+		url("images/noise.svg"),
+		linear-gradient(transparent 10%, var(--black-800) 50%),
+		url("images/popcorn_pattern.svg");
+
+	background-size: 220px, auto, auto;
+	background-blend-mode: multiply, normal, normal;
+	filter: url("#grain");
+	min-height: 100vh;
+	background-attachment: fixed;
 	color: var(--white-200);
 	margin: 0;
 }
@@ -96,14 +106,75 @@ input {
 	text-transform: uppercase;
 	font-size: 0.95rem;
 	font-weight: 400;
+	display: flex;
+	gap: 1rem;
 
 	padding-bottom: 1rem;
 	border-bottom: 1px solid var(--black-700);
 	margin-bottom: 2rem;
+
+	h1,
+	h2,
+	h3 {
+		font-size: inherit;
+		font-weight: inherit;
+	}
 }
 
 .highlight {
 	color: var(--white-100);
+}
+
+.button {
+	border: none;
+	display: inline-block;
+	border-radius: 4px;
+	background-color: var(--white-100);
+	color: #121212;
+	padding: 0.5rem 0.625rem;
+	outline: transparent;
+	outline-offset: 2px;
+	font-size: 1rem;
+	transition: background-color 180ms;
+
+	&[data-icon="true"] {
+		aspect-ratio: 1;
+		padding: 0.5rem;
+	}
+
+	&.sm {
+		font-size: 0.875rem;
+		padding: 0.25rem 0.5rem;
+	}
+
+	&:focus-visible {
+		outline: 2px solid hsl(from var(--brand) h s l / 0.5);
+	}
+
+	&.primary {
+		background-image: linear-gradient(to left top, #fbc504, #fcd54a);
+		color: var(--white-100);
+		box-shadow: inset 0 0 0 2px #c99e03;
+	}
+
+	&.secondary {
+		--bg: hsl(from var(--black-700) h s calc(l + 5));
+		background-color: var(--black-700);
+		color: var(--white-200);
+		&:focus-visible {
+			background-color: var(--bg);
+			&:hover {
+				background-color: hsl(from var(--bg) h s calc(l + 5));
+			}
+		}
+		&:hover {
+			background-color: var(--bg);
+		}
+	}
+}
+
+.user-lists-wrapper {
+	margin-top: 2rem;
 }
 
 .top-3 {

@@ -1,5 +1,6 @@
 {% import "macros/buttons.html" as ui %}
 {% import "macros/elements.html" as element %}
+{% import "macros/elements.html" as pagination_element %}
 {% import "macros/filters.html" as filters %}
 
 {% extends 'base.html' %}
@@ -59,6 +60,7 @@
     </div>
   {% endfor %}
   </section>
+  {{ pagination_element.render(pagination, 'movies') }}
 {% else %}
   <p>Wygląda na to, że jeszcze nic nie obejrzaleś!</p>
 {% endif %}

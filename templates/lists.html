@@ -1,27 +1,54 @@
+{% import "macros/elements.html" as pagination_element %}
 {% extends 'base.html' %}
 
 {% block body %}
 
   {% if session.get("user_id") %}
-    <section>
-      <h2 class="subheading">Twoje listy</h2>
-      <a href="{{ url_for('create_list') }}">Stwórz nową listę</a>
+    <header style="display:grid;grid-template-columns:repeat(2,1fr);">
+      <section>
+        <div class="subheading">
+          <h2>Twoje listy</h2>
+          <a class="button sm secondary" href="{{ url_for('create_list') }}">Nowa Lista</a>
+        </div>
       
       {% if user_lists %}
-        {% for list in user_lists %}
+
+        <div class="user-lists-wrapper">
+          {% for list in user_lists %}
+          <div>
+            <a href="{{ url_for('list_details', list_id=list.id) }}">
+              <h3>{{ list.name }}</h3>
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p><a href="{{ url_for('create_list') }}">Stwórz</a> swoją pierwszą listę.</p>
+      {% endif %}
+    </section>
+    <section>
+      <h2 class="subheading">Listy, które obserwujesz</h2>
+      
+      {% if followed_lists %}
+        <div class="user-lists-wrapper">
+          {% for list in followed_lists %}
           <div>
             <a href="{{ url_for('list_details', list_id=list.id) }}">
               <h3>{{ list.name }}</h3>
             </a>
           </div>
         {% endfor %}
+        </div>
       {% else %}
-        <p><a href="{{ url_for('create_list') }}">Stwórz</a> swoją pierwszą listę.</p>
+        <p>Wygląda na to, że nie obserwujes jeszcze żadnej listy.</p>
       {% endif %}
     </section>
+    </header>
   {% endif %}
 
+<div class="spacing"></div>
 
+{% if lists|length %}
   <section>
     <h2 class="subheading">Wszystkie listy</h2>
 
@@ -56,11 +83,14 @@
           </a>
         </header>
       </section>
-    {% else %}
-      <p>Wygląda na to, że jeszcze nie stworzono żadnej listy.</p>
     {% endfor %}
 
-  </section>
-{% endblock %}
+    {{ pagination_element.render(pagination, 'lists') }}
 
+  {% else %}
+  <p>nie ma żadnych list.</p>
+  {% endif %}
+  </section>
+
+{% endblock %}
 

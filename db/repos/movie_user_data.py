@@ -107,7 +107,13 @@ class MovieUserData:
             ORDER BY g.name ASC
         """, (user_id,))
 
-    def get_user_movies(self, user_id: int, genre_filter: str | None = None, sort_by: str ="newest"):
+    def get_user_movies(self,
+                        user_id: int,
+                        genre_filter: str | None = None,
+                        sort_by: str ="newest",
+                        page = 1,
+                        limit = 20
+        ):
         """Pobiera Historię Obejrzanych wraz z datą obejrzenia i oceną."""
 
         sort_options = {
@@ -118,6 +124,7 @@ class MovieUserData:
         }
 
         order = sort_options.get(sort_by, "m.watched_at DESC")
+        offset = (page - 1) * limit
 
         sql = f"""
             SELECT 
@@ -148,9 +155,30 @@ class MovieUserData:
             """
             params.append(genre_filter)
 
-        sql += f" GROUP BY m.tmdb_id ORDER BY {order}"
+        sql += f" GROUP BY m.tmdb_id ORDER BY {order} LIMIT ? OFFSET ?"
+        params.extend([limit, offset])
         
         return self.db.fetch_all(sql, tuple(params))
+
+
+    def count_user_movies(self, user_id: int, genre_filter: str | None = None):
+        """Liczy całkowitą liczbę filmów dla paginacji"""
+        sql = "SELECT COUNT(*) as count FROM movies m WHERE m.user_id = ?"
+        params: list[Any] = [user_id]
+
+        if genre_filter and genre_filter != "all":
+            sql += """
+            AND EXISTS (
+                SELECT 1 FROM movie_genres mg2 
+                JOIN genres g2 ON mg2.genre_id = g2.id 
+                WHERE mg2.tmdb_id = m.tmdb_id AND g2.name = ?
+            )
+            """
+            params.append(genre_filter)
+            
+        row = self.db.fetch_one(sql, tuple(params))
+        return row['count'] if row else 0
+
 
     def get_most_popular_movies(self, limit=5):
         """

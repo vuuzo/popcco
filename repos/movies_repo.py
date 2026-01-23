@@ -1,3 +1,4 @@
+from math import ceil
 from db.repos.list_repo import ListRepo
 from db.repos.movie_user_data import MovieUserData
 from db.repos.watchlist_repo import WatchlistRepo
@@ -18,7 +19,12 @@ class MovieRepository:
 
     def search(self, query: str, page=1) -> MovieSearchResult:
         raw_data = self.tmdb.search_movies(query, page)
-        return MovieSearchResult.from_tmdb(raw_data)
+        res = MovieSearchResult.from_tmdb(raw_data)
+        res.params = {"q": query}
+
+        return res
+        # result.params = {"q": query}
+        # return MovieSearchResult.from_tmdb(raw_data)
 
     def _ensure_movie_info(self, tmdb_id: int):
         """
@@ -90,9 +96,22 @@ class MovieRepository:
         """Pobiera wyłącznie listy użytkownika"""
         return self.list_dao.get_user_lists(user_id)
 
-    def get_all_lists(self):
+    def get_all_lists(self, page = 1):
         """Pobiera wszystkie publiczne listy"""
-        return self.list_dao.get_all_lists()
+        limit = 10
+        rows = self.list_dao.get_all_lists(page=page, limit=limit)
+        total_count = self.list_dao.count_all_lists()
+        
+        total_pages = ceil(total_count / limit)
+        
+        return {
+            "items": rows,
+            "page": page,
+            "total_pages": total_pages,
+            "total_count": total_count,
+            "params": {} # listy nie mają filtrów, więc pusty słownik
+        }
+        # return self.list_dao.get_all_lists()
 
     def create_list(self, user_id: int, name: str, description: str):
         self.list_dao.create_list(user_id, name, description)
@@ -129,8 +148,24 @@ class MovieRepository:
         return False
 
     # DO OBEJRZENIA (WATCHLIST)
-    def get_watchlist(self, user_id: int, genre: str | None = None, sort: str = "newest") -> list[Movie]:
-        return self.watchlist_dao.get(user_id, genre_filter=genre, sort_by=sort)
+    def get_watchlist(self, user_id: int, genre: str | None = None, sort: str = "newest", page: int = 1):
+        limit = 1
+        
+        rows = self.watchlist_dao.get(user_id, genre_filter=genre, sort_by=sort, page=page, limit=limit)
+        total_count = self.watchlist_dao.count(user_id, genre_filter=genre)
+        
+        total_pages = ceil(total_count / limit)
+        
+        return {
+            "items": rows,
+            "page": page,
+            "total_pages": total_pages,
+            "total_count": total_count,
+            "params": {"genre": genre, "sort": sort} # zachowanie filtrów w url
+        }
+
+    # def get_watchlist(self, user_id: int, genre: str | None = None, sort: str = "newest") -> list[Movie]:
+    #     return self.watchlist_dao.get(user_id, genre_filter=genre, sort_by=sort)
         # rows = self.watchlist.get(user_id)
         # WRÓĆ
         #
@@ -174,9 +209,24 @@ class MovieRepository:
         """Zwraca listę wszystkich gatunków, jakie posiada użytkownik w swojej bibliotece"""
         return self.user_dao.get_user_genres(user_id)
 
-    def get_user_movies(self, user_id: int, genre: str | None = None, sort: str = "newest"): 
-        """Pobiera filmy użytkownika, opcjonalnie filtrując po gatunku"""
-        return self.user_dao.get_user_movies(user_id, genre_filter=genre, sort_by=sort)
+    def get_user_movies(self, user_id: int, genre: str | None = None, sort: str = "newest", page: int = 1):
+        limit = 18
+        
+        rows = self.user_dao.get_user_movies(user_id, genre_filter=genre, sort_by=sort, page=page, limit=limit)
+        total_count = self.user_dao.count_user_movies(user_id, genre_filter=genre)
+        
+        total_pages = ceil(total_count / limit)
+
+        return {
+            "items": rows,
+            "page": page,
+            "total_pages": total_pages,
+            "total_count": total_count,
+            "params": {"genre": genre, "sort": sort}
+        }
+    # def get_user_movies(self, user_id: int, genre: str | None = None, sort: str = "newest"): 
+    #     """Pobiera filmy użytkownika, opcjonalnie filtrując po gatunku"""
+    #     return self.user_dao.get_user_movies(user_id, genre_filter=genre, sort_by=sort)
 
     # def get_user_movies(self, user_id: int, genre_filter=None) -> list[Movie]:
     #     rows = self.user_dao.get_user_movies(user_id, genre_filter)
@@ -199,4 +249,23 @@ class MovieRepository:
         
         return True
 
+    def follow_list(self, user_id: int, list_id: int):
+        self.list_dao.follow_list(user_id, list_id)
 
+    def unfollow_list(self, user_id: int, list_id: int):
+        self.list_dao.unfollow_list(user_id, list_id)
+
+    def get_user_followed_lists(self, user_id: int):
+        return self.list_dao.get_followed_lists(user_id)
+
+    def get_list_social_stats(self, list_id: int, user_id: int | None):
+        """Zwraca liczbę obserwujących oraz czy dany user obserwuje listę."""
+        count = self.list_dao.get_followers_count(list_id)
+        is_following = False
+        if user_id:
+            is_following = self.list_dao.is_following(user_id, list_id)
+        
+        return {
+            "followers_count": count,
+            "is_following": is_following
+        }

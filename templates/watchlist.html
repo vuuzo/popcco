@@ -1,5 +1,6 @@
 {% import "macros/buttons.html" as ui %}
 {% import "macros/filters.html" as filters %}
+{% import "macros/elements.html" as pagination_element %}
 
 {% extends "base.html" %}
 
@@ -54,6 +55,8 @@
         </div>
       {% endfor %}
     </div>
+
+    {{ pagination_element.render(pagination, 'watchlist') }}
   {% endif %}
 
 {% endblock %}
