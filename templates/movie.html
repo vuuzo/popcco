@@ -21,6 +21,14 @@
     <p>{{movie.description}}</p>
   </section>
 
+  {% if stats.avg_rating != None %}
+  <div><p>
+  {{stats.avg_rating}}
+  na {{stats.rating_count}}
+  oceny
+  </p></div>
+  {% endif %}
+
 {% if session.get('user_id') %}
   <section class="movie-details-panel">
 

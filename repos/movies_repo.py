@@ -37,7 +37,13 @@ class MovieRepository:
         self.user_dao._update_cache(tmdb_id, title, poster, genres)
 
     # FILMY
-    def get_popular_movies(self) -> list[Movie]:
+    def get_popular_movies_from_db(self, limit: int = 3):
+        """
+        Zwraca najpopularniejsze filmy, delegując zapytanie do DAO.
+        """
+        return self.user_dao.get_most_popular_movies(limit)
+
+    def get_popular_movies_from_tmdb(self) -> list[Movie]:
         raw_data = self.tmdb.get_popular()
         return [Movie.from_tmdb(item) for item in raw_data.get('results', [])]
 
@@ -61,6 +67,10 @@ class MovieRepository:
                 movie.watched_at = user_details['watched_at']
 
         return movie
+
+    def get_community_stats(self, tmdb_id: int):
+        """Zwraca statystyki społeczności dla jednego filmu."""
+        return self.user_dao.get_movie_stats(tmdb_id)
 
     # KOMENTARZE
     def get_comments(self, tmdb_id: int):

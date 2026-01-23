@@ -63,8 +63,12 @@ def load_user():
 
 @app.route("/")
 def index():
-    popular_movies = watched.get_popular_movies()
-    return render_template("index.html", movies=popular_movies)
+    popular_movies_tmdb = watched.get_popular_movies_from_tmdb()
+    popular_movies_db = watched.get_popular_movies_from_db(limit=3)
+
+    return render_template("index.html",
+                           movies_tmdb=popular_movies_tmdb,
+                           movies_db=popular_movies_db)
 
 
 # =============
@@ -220,13 +224,17 @@ def movie(id):
     user_id = session.get("user_id")
 
     movie = watched.get_movie_details(id, user_id)
+
     comments = watched.get_comments(id)
     user_lists = watched.get_user_lists(user_id) if user_id else []
+
+    stats = watched.get_community_stats(id)
 
     return render_template("movie.html", 
                            movie=movie, 
                            comments=comments, 
-                           lists=user_lists)
+                           lists=user_lists,
+                           stats=stats)
 
 @app.route("/movie/<int:movie_id>/add_comment", methods=["POST"])
 def add_comment(movie_id):

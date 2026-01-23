@@ -152,6 +152,55 @@ class MovieUserData:
         
         return self.db.fetch_all(sql, tuple(params))
 
+    def get_most_popular_movies(self, limit=5):
+        """
+        Pobiera filmy według wskaźnika popularności.
+        Popularność = (liczba obejrzeń * 2) + (liczba na watchliście)
+        Dodatkowo oblicza średnią ocenę.
+        """
+        sql = """
+            SELECT 
+                mc.tmdb_id,
+                mc.title,
+                mc.poster_path,
+                COUNT(DISTINCT m.user_id) as watch_count,
+                COUNT(DISTINCT w.user_id) as watchlist_count,
+                AVG(m.rating) as avg_rating,
+                (COUNT(DISTINCT m.user_id) * 2 + COUNT(DISTINCT w.user_id)) as popularity_score,
+                GROUP_CONCAT(DISTINCT g.name) as genres_str
+                
+            FROM movies_cache mc
+            LEFT JOIN movies m ON mc.tmdb_id = m.tmdb_id
+            LEFT JOIN watchlist w ON mc.tmdb_id = w.tmdb_id
+            LEFT JOIN movie_genres mg ON mc.tmdb_id = mg.tmdb_id
+            LEFT JOIN genres g ON mg.genre_id = g.id
+            
+            GROUP BY mc.tmdb_id
+            HAVING popularity_score > 0
+            ORDER BY popularity_score DESC
+            LIMIT ?
+        """
+        return self.db.fetch_all(sql, (limit,))
+
+    def get_movie_stats(self, tmdb_id: int):
+        """Pobiera średnią ocenę i liczbę głosów dla konkretnego filmu."""
+        sql = """
+            SELECT 
+                AVG(rating) as avg_rating, 
+                COUNT(rating) as rating_count
+            FROM movies
+            WHERE tmdb_id = ? AND rating IS NOT NULL
+        """
+        row = self.db.fetch_one(sql, (tmdb_id,))
+        
+        if not row or row['avg_rating'] is None:
+            return {'avg_rating': None, 'rating_count': 0}
+            
+        return {
+            'avg_rating': round(float(row['avg_rating']), 1),
+            'rating_count': row['rating_count']
+        }
+
     def remove_from_watched(self, user_id: int, tmdb_id: int):
         """Usuwa obejrzany film oraz powiązane z nim dane."""
         self.db.execute("DELETE FROM movies WHERE user_id = ? AND tmdb_id = ?", (user_id, tmdb_id))

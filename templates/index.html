@@ -1,3 +1,5 @@
+{% import "macros/elements.html" as ranks %}
+{% import "macros/buttons.html" as ui %}
 {% extends 'base.html' %}
 
 {% block body %}
@@ -12,10 +14,56 @@
   </form>
 </section>
 
-<h2 class="subheading">Popularne filmy</h2>
+{% if movies_db|length >= 3 %}
+<h2 class="subheading">Top 3 najpopularniejsze filmy na platformie</h2>
 <section>
+    <section class="top-3">
+      {% for movie in movies_db %}
+      <div class="popular-movie-wrapper {{ 'top-1' if loop.first }}">
+          <div class="popular-movie">
+            <div class="popular-movie-rank">
+                {{ ranks.rank_icon(loop.index) }}
+            </div>
+            <div class="poster-wrapper">
+                <a href="{{url_for('movie', id=movie.tmdb_id)}}"></a>
+                <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}">
+            </div>
+          </div>
+
+            <div>
+                <div class="popular-movie-stats">
+                    {% if movie.avg_rating %}
+                        <div class="popular-rating">
+                            {{ ranks.popcorn(28) }} {{ movie.avg_rating }}
+                        </div>
+                    {% endif %}
+
+                    <div class="popular-watchlist"> 
+                        <svg class="dimmed" width="32" height="32">
+                          <use href="#icon-save"></use>
+                        </svg>
+                        {{ movie.watchlist_count }}
+                    </div>
+
+                    <div class="popular-watch">
+                        <svg class="dimmed" width="32" height="32">
+                          <use href="#icon-eye"></use>
+                        </svg>
+                        {{ movie.watch_count }}
+                    </div>
+                </div>
+            </div>
+        </div>
+      {% endfor %}
+    </section>
+
+    <div class="spacing"></div>
+{% endif %}
+
+    <h2 class="subheading">Popularne filmy (TMDB)</h2>
+
   <div class="movies-grid">
-        {% for movie in movies %}
+        {% for movie in movies_tmdb %}
             <a href="{{ url_for('movie', id=movie.tmdb_id) }}" class="movie-card">
                 <div class="poster-wrapper">
                     {% if movie.poster_path %}

@@ -11,6 +11,10 @@ class Movie:
     watched_at: str | None = None
     is_on_watchlist: bool = False
     genres: list[str] = field(default_factory=list)
+    popularity_score: int = 0
+    watch_count: int = 0
+    watchlist_count: int = 0
+    avg_rating: float | None = None
 
 
     @property
@@ -23,7 +27,11 @@ class Movie:
         row_dict = dict(row) 
 
         genres_str = row_dict.get('genres_str')
-        genres_list = genres_str.split(', ') if genres_str else []
+        # genres_list = genres_str.split(', ') if genres_str else []
+        genres_list = genres_str.split(',') if genres_str else [] # Uwaga: w GROUP_CONCAT dałem przecinek bez spacji w SQL wyżej
+
+        avg = row_dict.get('avg_rating')
+        avg_rating = round(float(avg), 1) if avg is not None else None
 
         return cls(
             tmdb_id=row_dict['tmdb_id'],
@@ -32,7 +40,11 @@ class Movie:
             rating=row_dict.get('rating'),
             watched_at=row_dict.get('watched_at'),
             is_on_watchlist=bool(row_dict.get('is_on_watchlist', 0)),
-            genres=genres_list
+            genres=genres_list,
+            popularity_score=row_dict.get('popularity_score', 0),
+            watch_count=row_dict.get('watch_count', 0),
+            watchlist_count=row_dict.get('watchlist_count', 0),
+            avg_rating=avg_rating
         )
 
     @classmethod
