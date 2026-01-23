@@ -113,14 +113,21 @@
 
     <footer class="center-content">
       <section>
-        <small>Pamiętaj żeby w footerze dodać creditsy TMDB</small>
+          <img style="height:32px" src="/static/images/tmdb_logo.svg" alt="TMDB Logo">
+          <p>&copy; <span id="year"></span> Popcco. Wszelkie prawa zastrzeżone.</p>
+          <p>
+            Projekt korzysta z <a href="https://developer.themoviedb.org/docs/getting-started" target="_blank">API</a> serwisu <a href="https://www.themoviedb.org/" target="_blank">TMDB</a>, ale nie jest przez niego wspierany ani certyfikowany.
+          </p>
       </section>
     </footer>
     </section>
 
     <script>
       document.addEventListener("DOMContentLoaded", function() {
-        
+        const date = new Date() 
+        const year = date.getFullYear()
+        document.querySelector('#year').textContent=year
+
         const messages = document.querySelectorAll('.message');
 
         if (messages.length > 0) {
