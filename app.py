@@ -14,27 +14,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_KEY = os.getenv("TMDB_API_KEY")
 FLASK_SECRET = os.getenv("FLASK_SECRET")
-CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME")
-CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
-CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
 
-_cloudinary_service = CloudinaryService(
-    CLOUDINARY_CLOUD_NAME, 
-    CLOUDINARY_API_KEY, 
-    CLOUDINARY_API_SECRET
-)
+_cloudinary_service = CloudinaryService()
 
 app = Flask(__name__)
 app.secret_key = FLASK_SECRET
 
 db = Database()
+db.init_app(app)
 
 _movie_user_data = MovieUserData(db)
 _watchlist_repo = WatchlistRepo(db)
 _list_repo = ListRepo(db)
-_tmdb_service = TMDBService(API_KEY)
+_tmdb_service = TMDBService()
 _tmdb_adapter = TMDBAdapter(_tmdb_service)
 
 # middleware
@@ -54,6 +47,8 @@ def load_user():
     Pobiera użytkownika z bazy na podstawie sesji i zapisuje w g.user.
     Dzięki temu w każdym szablonie HTML mamy dostęp do {{ g.user }}.
     """
+    if request.endpoint and 'static' in request.endpoint: return
+
     user_id = session.get("user_id")
     
     if user_id:
@@ -174,31 +169,6 @@ def upload_avatar():
 
     return redirect(url_for('profile', username=username))
 
-# def upload_avatar():
-#     user_id = int(session["user_id"])
-#
-#     if 'avatar' not in request.files:
-#         flash("Nie przesłano pliku", "error")
-#         return redirect(url_for('profile'))
-#
-#     file = request.files['avatar']
-#
-#     unique_filename = f"user_{user_id}"
-#
-#     image_url = _cloudinary_service.upload(file, user_id=unique_filename)
-#
-#     if image_url:
-#         # WRÓĆ
-#         # Ponieważ URL może być keszowany przez przeglądarkę, warto dodać
-#         # na końcu losowy parametr (np. timestamp), żeby wymusić odświeżenie w HTML.
-#         # Ale w bazie zapisujemy czysty URL.
-#         user_repo.update_avatar(user_id, image_url)
-#         flash("Zdjęcie profilowe zaktualizowane!", "success")
-#     else:
-#         flash("Wystąpił błąd podczas wysyłania zdjęcia.", "error")
-#
-#     return redirect(url_for('profile'))
-
 # =============
 # MOVIES
 # =============
@@ -212,7 +182,6 @@ def movies():
     page = request.args.get("page", 1, type=int)
 
     pagination = watched.get_user_movies(user_id, genre, sort, page)
-    # user_movies = watched.get_user_movies(user_id, genre=genre, sort=sort)
     available_genres = watched.get_user_genres(user_id)
     
     return render_template("movies.html",
@@ -463,5 +432,5 @@ def remove_from_list(list_id, movie_id):
 
 
 if __name__ in "__main__":
-    app.run(debug=True) # WRÓĆ - MEGA WAŻNE ZMIENIĆ NA FALSE PRZY ODDANIU PROJEKTU
+    app.run(debug=True, port=5001) # WRÓĆ - MEGA WAŻNE ZMIENIĆ NA FALSE PRZY ODDANIU PROJEKTU
 

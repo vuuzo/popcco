@@ -1,3 +1,4 @@
+import os
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -6,7 +7,11 @@ class TMDBService:
     BASE_URL = "https://api.themoviedb.org/3"
     IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
 
-    def __init__(self, api_key):
+    def __init__(self):
+        api_key = os.getenv("TMDB_API_KEY")
+        if not api_key:
+            raise ValueError("Nie znaleziono zmiennej środowiskowej TMDB_API_KEY")
+
         self.session = requests.Session()
         
         retries = Retry(

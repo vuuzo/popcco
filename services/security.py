@@ -13,7 +13,6 @@ class SecurityMiddleware:
             'lists', 'list_details', 'search', 'profile'
         }
         
-        # Rejestrujemy hook w aplikacji
         self.app.before_request(self.check_access)
 
     def check_access(self):

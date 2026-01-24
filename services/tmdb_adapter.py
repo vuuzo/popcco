@@ -8,17 +8,6 @@ class TMDBAdapter:
     def search_movies(self, query: str, page=1) -> dict[str, Any]:
         """Pobiera wyniki wyszukiwania"""
         return self.tmdb.search(query, page)
-        # WRÓĆ
-        # return [
-        #     MovieSearchResult(
-        #         tmdb_id=r["id"],
-        #         title=r.get("title") or r.get("original_title") or "Nieznany tytuł",
-        #         release_date =r.get("release_date") or None,
-        #         poster_path=r.get("poster_path") if r.get("poster_path") else "/static/images/no_image.svg"
-        #         # poster_path=r.get("poster_path") or None
-        #     )
-        #     for r in results
-        # ]
 
     def get_popular(self) -> dict[str, Any]:
         """Pobiera popularne filmy"""
