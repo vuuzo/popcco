@@ -10,7 +10,7 @@
 
 <section style="padding-bottom:4rem">
   <form action="{{url_for('search')}}" method="GET">
-    <input class="search-input" style="margin: 0 auto" type="search" name="q" placeholder="Co chcesz obejrzeć?" autocomplete="off">
+    <input class="search-input search-sm" style="margin: 0 auto" type="search" name="q" placeholder="Co chcesz obejrzeć?" autocomplete="off">
   </form>
 </section>
 
@@ -32,11 +32,12 @@
 
             <div>
                 <div class="popular-movie-stats">
-                    {% if movie.avg_rating %}
-                        <div class="popular-rating">
-                            {{ ranks.popcorn(28) }} {{ movie.avg_rating }}
-                        </div>
-                    {% endif %}
+                    <div class="popular-watch">
+                        <svg class="dimmed" width="32" height="32">
+                          <use href="#icon-eye"></use>
+                        </svg>
+                        {{ movie.watch_count }}
+                    </div>
 
                     <div class="popular-watchlist"> 
                         <svg class="dimmed" width="32" height="32">
@@ -45,12 +46,13 @@
                         {{ movie.watchlist_count }}
                     </div>
 
-                    <div class="popular-watch">
-                        <svg class="dimmed" width="32" height="32">
-                          <use href="#icon-eye"></use>
-                        </svg>
-                        {{ movie.watch_count }}
-                    </div>
+
+                    {% if movie.avg_rating %}
+                        <div class="popular-rating">
+                            {{ ranks.popcorn(28) }} {{ movie.avg_rating }}
+                        </div>
+                    {% endif %}
+
                 </div>
             </div>
         </div>

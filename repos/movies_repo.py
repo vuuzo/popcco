@@ -47,7 +47,8 @@ class MovieRepository:
         """
         Zwraca najpopularniejsze filmy, delegując zapytanie do DAO.
         """
-        return self.user_dao.get_most_popular_movies(limit)
+        rows = self.user_dao.get_most_popular_movies(limit)
+        return [Movie.from_db_row(row) for row in rows]
 
     def get_popular_movies_from_tmdb(self) -> list[Movie]:
         raw_data = self.tmdb.get_popular()
@@ -224,14 +225,7 @@ class MovieRepository:
             "total_count": total_count,
             "params": {"genre": genre, "sort": sort}
         }
-    # def get_user_movies(self, user_id: int, genre: str | None = None, sort: str = "newest"): 
-    #     """Pobiera filmy użytkownika, opcjonalnie filtrując po gatunku"""
-    #     return self.user_dao.get_user_movies(user_id, genre_filter=genre, sort_by=sort)
 
-    # def get_user_movies(self, user_id: int, genre_filter=None) -> list[Movie]:
-    #     rows = self.user_dao.get_user_movies(user_id, genre_filter)
-    #     return [Movie.from_db_row(row) for row in rows]
-    #
     def mark_as_watched(self, user_id: int, tmdb_id: int, rating: int | None = None) -> bool:
         """
         Zapisuje film jako obejrzany.
@@ -242,6 +236,7 @@ class MovieRepository:
         
         self._ensure_movie_info(tmdb_id)
         self.user_dao.add_to_watched(user_id, tmdb_id, rating)
+        print(already_watched)
         
         if not already_watched:
             self.watchlist_dao.remove(user_id, tmdb_id)

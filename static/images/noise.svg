@@ -7,7 +7,7 @@
       numOctaves='1' 
       stitchTiles='stitch'/>
     <feComponentTransfer in="noise">
-      <feFuncA type="table" tableValues="0 0.9" />
+      <feFuncA type="table" tableValues="0 0.5" />
     </feComponentTransfer>
   </filter>
   

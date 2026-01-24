@@ -10,59 +10,61 @@
 <h1 class="subheading">Obejrzane filmy</h1>
 
 {% if movies or current_genre != 'all' %}
-  {{ filters.sort_filter(genres, current_genre, current_sort, context='movies') }}
+{{ filters.sort_filter(genres, current_genre, current_sort, context='movies') }}
 {% endif %}
 
 {% if movies %}
-  <section class="movies-grid">
+<section class="movies-grid">
   {% for movie in movies %}
-    <div>
-      <div class="poster-wrapper">
-        <img
-          src="{{ movie.poster_path if movie.poster_path.startswith('/static')
-          else 'https://image.tmdb.org/t/p/w200' ~ movie.poster_path }}"
-        >
-        <a href="{{ url_for('movie', id=movie.tmdb_id) }}"></a>
+  <div>
+    <div class="poster-wrapper">
+      <img src="{{ movie.poster_path if movie.poster_path.startswith('/static')
+          else 'https://image.tmdb.org/t/p/w200' ~ movie.poster_path }}">
+      <a href="{{ url_for('movie', id=movie.tmdb_id) }}"></a>
 
 
-        <div class="action-wrapper">
-          {% if movie.is_watched %}
-            <form class="action-form action-watched-form" action="{{ url_for('remove_watched', movie_id=movie.tmdb_id) }}" method="POST">
-                {{ ui.button_eye(movie.is_watched) }}
-            </form>
-          {% else %}
-            <form class="action-form action-watched-form" action="{{ url_for('mark_watched', movie_id=movie.tmdb_id) }}" method="POST">
-                {{ ui.button_eye(movie.is_watched) }}
-            </form>
-          {% endif %}
+      <div class="action-wrapper">
+        {% if movie.is_watched %}
+        <form class="action-form action-watched-form" action="{{ url_for('remove_watched', movie_id=movie.tmdb_id) }}"
+          method="POST">
+          {{ ui.button_eye(movie.is_watched) }}
+        </form>
+        {% else %}
+        <form class="action-form action-watched-form" action="{{ url_for('mark_watched', movie_id=movie.tmdb_id) }}"
+          method="POST">
+          {{ ui.button_eye(movie.is_watched) }}
+        </form>
+        {% endif %}
 
 
-          {% if movie.is_on_watchlist %}
-            <form class="action-form action-saved-form" action="{{ url_for('remove_from_watchlist', movie_id=movie.tmdb_id) }}" method="POST">
-                {{ ui.button_save(movie.is_on_watchlist) }}
-            </form>
-          {% else %}
-            <form class="action-form action-saved-form" action="{{ url_for('add_to_watchlist', movie_id=movie.tmdb_id) }}" method="POST">
-                {{ ui.button_save(movie.is_on_watchlist) }}
-            </form>
-          {% endif %}
+        {% if movie.is_on_watchlist %}
+        <form class="action-form action-saved-form"
+          action="{{ url_for('remove_from_watchlist', movie_id=movie.tmdb_id) }}" method="POST">
+          {{ ui.button_save(movie.is_on_watchlist) }}
+        </form>
+        {% else %}
+        <form class="action-form action-saved-form" action="{{ url_for('add_to_watchlist', movie_id=movie.tmdb_id) }}"
+          method="POST">
+          {{ ui.button_save(movie.is_on_watchlist) }}
+        </form>
+        {% endif %}
 
-          {% if movie.rating %}
-          <div class="movie-rating-wrapper">
-            {% for _ in range(movie.rating) %}
-            {{ element.popcorn() }}
-            {% endfor %}
-          </div>
-          {% endif %}
+        {% if movie.rating %}
+        <div class="movie-rating-wrapper">
+          {% for _ in range(movie.rating) %}
+          {{ element.popcorn() }}
+          {% endfor %}
         </div>
+        {% endif %}
       </div>
-
     </div>
+
+  </div>
   {% endfor %}
-  </section>
-  {{ pagination_element.render(pagination, 'movies') }}
+</section>
+{{ pagination_element.render(pagination, 'movies') }}
 {% else %}
-  <p>Wygląda na to, że jeszcze nic nie obejrzaleś!</p>
+<p>Wygląda na to, że jeszcze nic nie obejrzaleś!</p>
 {% endif %}
 
 {% endblock %}
