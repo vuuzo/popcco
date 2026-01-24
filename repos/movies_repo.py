@@ -23,7 +23,6 @@ class MovieRepository:
         res.params = {"q": query}
 
         return res
-        # result.params = {"q": query}
         # return MovieSearchResult.from_tmdb(raw_data)
 
     def _ensure_movie_info(self, tmdb_id: int):
@@ -43,27 +42,22 @@ class MovieRepository:
         self.user_dao._update_cache(tmdb_id, title, poster, genres)
 
     # FILMY
-    def get_popular_movies_from_db(self, limit: int = 3):
-        """
-        Zwraca najpopularniejsze filmy, delegując zapytanie do DAO.
-        """
+    def get_movies_popular_db(self, limit: int = 3):
+        """Zwraca N najpopularniejsze filmy z Popcco"""
         rows = self.user_dao.get_most_popular_movies(limit)
         return [Movie.from_db_row(row) for row in rows]
 
-    def get_popular_movies_from_tmdb(self) -> list[Movie]:
+    def get_movies_popular_tmdb(self) -> list[Movie]:
+        """Zwraca najpopularniejsze filmy z serwisu TMDB"""
         raw_data = self.tmdb.get_popular()
         return [Movie.from_tmdb(item) for item in raw_data.get('results', [])]
 
     def get_movie_details(self, tmdb_id: int, user_id: int | None = None) -> Movie:
-        """
-        Pobiera pełne dane o filmie. 
-        Jeśli user_id jest podane, uzupełnia o dane użytkownika (czy obejrzany, ocena).
-        """
+        """Zwraca dane o filmie, jeśli user_id jest podane, uzupełnia o dane użytkownika"""
 
         tmdb_data = self.tmdb.get_movie(tmdb_id)
         movie = Movie.from_tmdb(tmdb_data)
 
-        # Jeśli użytkownik istnieje dodajemy dane z bazy
         if user_id:
             user_details = self.user_dao.get_user_movie_details(user_id, tmdb_id)
             is_on_watchlist = self.watchlist_dao.is_on_watchlist(user_id, tmdb_id)
@@ -75,13 +69,18 @@ class MovieRepository:
 
         return movie
 
-    def get_community_stats(self, tmdb_id: int):
-        """Zwraca statystyki społeczności dla jednego filmu."""
+    def get_movie_stats(self, tmdb_id: int):
+        """
+        Zwraca statystyki filmu:
+            avg_rating     -   ogólna ocena filmu
+            rating_count   -   ilość ocen
+            
+        """
         return self.user_dao.get_movie_stats(tmdb_id)
 
     # KOMENTARZE
     def get_comments(self, tmdb_id: int):
-        """Pobiera komentarze (deleguje do DAO)"""
+        """Pobiera wszystkie komentarze pod filmem"""
         return self.user_dao.get_all_comments(tmdb_id)
         
     def add_comment(self, user_id: int, tmdb_id: int, content: str):
@@ -90,15 +89,16 @@ class MovieRepository:
         self.user_dao.add_comment(user_id, tmdb_id, content)
 
     def remove_comment(self, user_id: int, tmdb_id: int):
+        """Usuwa komentarz"""
         self.user_dao.remove_comment(user_id, tmdb_id)
 
     # LISTY
     def get_user_lists(self, user_id: int):
-        """Pobiera wyłącznie listy użytkownika"""
+        """Zwraca listy stworzone przez usera"""
         return self.list_dao.get_user_lists(user_id)
 
-    def get_all_lists(self, page = 1):
-        """Pobiera wszystkie publiczne listy"""
+    def get_lists(self, page = 1):
+        """Zwraca wszystkie listy z bazy"""
         limit = 10
         rows = self.list_dao.get_all_lists(page=page, limit=limit)
         total_count = self.list_dao.count_all_lists()
@@ -112,27 +112,28 @@ class MovieRepository:
             "total_count": total_count,
             "params": {} # listy nie mają filtrów, więc pusty słownik
         }
-        # return self.list_dao.get_all_lists()
 
     def create_list(self, user_id: int, name: str, description: str):
+        """Tworzy nową listę"""
         self.list_dao.create_list(user_id, name, description)
 
     def get_list_details(self, list_id: int):
-        """Zwraca nazwę, opis oraz właściciel listy."""
+        """Zwraca nazwę, opis oraz właściciela listy"""
         return self.list_dao.get_list(list_id)
 
     def get_list_movies(self, list_id: int) -> list[Movie]:
-        """Pobiera filmy z konkretnej listy."""
+        """Pobiera filmy znajdujące się na danej liście"""
         # WRÓĆ
         # Tu też można by zmapować na obiekty Movie, na razie zwracamy surowe dane z repo
         return self.list_dao.get_list_movies(list_id)
 
     def add_to_list(self, list_id: int, user_id: int, tmdb_id: int):
+        """Dodaje film do listy"""
         self._ensure_movie_info(tmdb_id)
         self.list_dao.add_movie_to_list(list_id, user_id, tmdb_id)
 
     def remove_from_list(self, list_id: int, user_id: int, tmdb_id: int):
-        """ Usuwa film z listy, sprawdza czy lista należy do użytkownika. """
+        """Usuwa film z listy, sprawdza czy lista należy do użytkownika"""
         movie_list = self.list_dao.get_list(list_id)
         if not movie_list or movie_list['user_id'] != user_id:
             return False
@@ -141,7 +142,7 @@ class MovieRepository:
         return True
 
     def delete_list(self, list_id: int, user_id: int) -> bool:
-        """Usuwa listę."""
+        """Usuwa listę"""
         movie_list = self.list_dao.get_list(list_id)
         if movie_list and movie_list['user_id'] == user_id:
             self.list_dao.delete_list(list_id, user_id)
@@ -150,6 +151,7 @@ class MovieRepository:
 
     # DO OBEJRZENIA (WATCHLIST)
     def get_watchlist(self, user_id: int, genre: str | None = None, sort: str = "newest", page: int = 1):
+        """Zwraca wszystkie filmy na 'Do Obejrzenia' usera"""
         limit = 20
         
         rows = self.watchlist_dao.get(user_id, genre_filter=genre, sort_by=sort, page=page, limit=limit)
@@ -168,13 +170,11 @@ class MovieRepository:
         }
 
     def get_watchlist_genres(self, user_id: int):
-        """Pobiera dostępne gatunki z watchlisty."""
+        """Pobiera dostępne gatunki z watchlisty"""
         return self.watchlist_dao.get_watchlist_genres(user_id)
 
     def add_to_watchlist(self, user_id: int, tmdb_id: int) -> bool:
-        """
-        Dodaje do watchlisty. Zwraca False, jeśli film już tam był.
-        """
+        """Dodaje do watchlisty"""
         if self.watchlist_dao.is_on_watchlist(user_id, tmdb_id):
             return False
         
@@ -183,18 +183,20 @@ class MovieRepository:
         return True
 
     def remove_from_watchlist(self, user_id: int, tmdb_id: int):
+        """Usuwa film z watchlisty"""
         self.watchlist_dao.remove(user_id, tmdb_id)
 
     # OBEJRZANE
     def remove_from_watched(self, user_id: int, tmdb_id: int):
-        """Usuwa film oraz powiązany z nim komentarz z danych użytkownika."""
+        """Usuwa film oraz powiązany z nim komentarz z danych usera"""
         self.user_dao.remove_from_watched(user_id, tmdb_id)
 
     def get_user_genres(self, user_id: int):
-        """Zwraca listę wszystkich gatunków, jakie posiada użytkownik w swojej bibliotece"""
+        """Zwraca listę wszystkich gatunków, jakie posiada user w swojej bibliotece"""
         return self.user_dao.get_user_genres(user_id)
 
     def get_user_movies(self, user_id: int, genre: str | None = None, sort: str = "newest", page: int = 1):
+        """Zwraca filmy obejrzane przez usera"""
         limit = 18
         
         rows = self.user_dao.get_user_movies(user_id, genre_filter=genre, sort_by=sort, page=page, limit=limit)
@@ -235,9 +237,10 @@ class MovieRepository:
         self.list_dao.unfollow_list(user_id, list_id)
 
     def get_user_followed_lists(self, user_id: int):
+        """Zwraca listy obserwowane przez usera."""
         return self.list_dao.get_followed_lists(user_id)
 
-    def get_list_social_stats(self, list_id: int, user_id: int | None):
+    def get_list_stats(self, list_id: int, user_id: int | None):
         """Zwraca liczbę obserwujących oraz czy dany user obserwuje listę."""
         count = self.list_dao.get_followers_count(list_id)
         is_following = False

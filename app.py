@@ -38,14 +38,13 @@ user_repo = UserRepo(db)
 
 
 # GŁÓWNY SERWIS
-watched = MovieRepository(_tmdb_adapter, _movie_user_data, _watchlist_repo, _list_repo)
+popcco = MovieRepository(_tmdb_adapter, _movie_user_data, _watchlist_repo, _list_repo)
 
 
 @app.before_request
 def load_user():
     """
     Pobiera użytkownika z bazy na podstawie sesji i zapisuje w g.user.
-    Dzięki temu w każdym szablonie HTML mamy dostęp do {{ g.user }}.
     """
     if request.endpoint and 'static' in request.endpoint: return
 
@@ -58,8 +57,8 @@ def load_user():
 
 @app.route("/")
 def index():
-    popular_movies_tmdb = watched.get_popular_movies_from_tmdb()
-    popular_movies_db = watched.get_popular_movies_from_db(limit=3)
+    popular_movies_tmdb = popcco.get_movies_popular_tmdb()
+    popular_movies_db = popcco.get_movies_popular_db(limit=3)
 
     return render_template("index.html",
                            movies_tmdb=popular_movies_tmdb,
@@ -181,8 +180,8 @@ def movies():
     sort = request.args.get("sort", "newest")
     page = request.args.get("page", 1, type=int)
 
-    pagination = watched.get_user_movies(user_id, genre, sort, page)
-    available_genres = watched.get_user_genres(user_id)
+    pagination = popcco.get_user_movies(user_id, genre, sort, page)
+    available_genres = popcco.get_user_genres(user_id)
     
     return render_template("movies.html",
                            movies=pagination["items"],
@@ -195,12 +194,12 @@ def movies():
 def movie(id):
     user_id = session.get("user_id")
 
-    movie = watched.get_movie_details(id, user_id)
+    movie = popcco.get_movie_details(id, user_id)
 
-    comments = watched.get_comments(id)
-    user_lists = watched.get_user_lists(user_id) if user_id else []
+    comments = popcco.get_comments(id)
+    user_lists = popcco.get_user_lists(user_id) if user_id else []
 
-    stats = watched.get_community_stats(id)
+    stats = popcco.get_movie_stats(id)
 
     return render_template("movie.html", 
                            movie=movie, 
@@ -217,7 +216,7 @@ def add_comment(movie_id):
     if not content:
         flash("Komentarz nie może być pusty", "error")
     else:
-        watched.add_comment(user_id, movie_id, content)
+        popcco.add_comment(user_id, movie_id, content)
         flash("Twój komentarz został zapisany", "success")
 
     return redirect(url_for('movie', id=movie_id))
@@ -226,7 +225,7 @@ def add_comment(movie_id):
 def remove_comment(movie_id):
     user_id = int(session["user_id"])
 
-    watched.remove_comment(user_id, movie_id)
+    popcco.remove_comment(user_id, movie_id)
     flash("Komentarz został usunięty", "success")
     
     return redirect(url_for('movie', id=movie_id))
@@ -243,7 +242,7 @@ def search():
         return redirect(url_for("index"))
     
     page = request.args.get("page", 1, type=int)
-    search_data = watched.search(query, page)
+    search_data = popcco.search(query, page)
     
     return render_template("search.html", search_data=search_data, query=query)
 
@@ -260,8 +259,8 @@ def watchlist():
     sort = request.args.get("sort", "newest")
     page = request.args.get("page", 1, type=int)
 
-    pagination = watched.get_watchlist(user_id, genre, sort, page)
-    available_genres = watched.get_watchlist_genres(user_id)
+    pagination = popcco.get_watchlist(user_id, genre, sort, page)
+    available_genres = popcco.get_watchlist_genres(user_id)
 
     return render_template("watchlist.html",
                            movies=pagination["items"],
@@ -274,7 +273,7 @@ def watchlist():
 def add_to_watchlist(movie_id):
     user_id = int(session["user_id"])
 
-    success = watched.add_to_watchlist(user_id, movie_id)
+    success = popcco.add_to_watchlist(user_id, movie_id)
     
     if success:
         flash("Dodano do obejrzenia", "success")
@@ -287,7 +286,7 @@ def add_to_watchlist(movie_id):
 def remove_from_watchlist(movie_id):
     user_id = int(session["user_id"])
 
-    watched.remove_from_watchlist(user_id, movie_id)
+    popcco.remove_from_watchlist(user_id, movie_id)
     return redirect(request.referrer)
 
 
@@ -296,7 +295,7 @@ def mark_watched(movie_id):
     user_id = int(session["user_id"])
 
     rating = request.form.get('rating', type=int)
-    is_update = watched.mark_as_watched(user_id, movie_id, rating)
+    is_update = popcco.mark_as_watched(user_id, movie_id, rating)
     
     if is_update:
         flash("Ocena została zaktualizowana", "success")
@@ -310,7 +309,7 @@ def mark_watched(movie_id):
 def remove_watched(movie_id):
     user_id = int(session["user_id"])
 
-    watched.remove_from_watched(user_id, movie_id)
+    popcco.remove_from_watched(user_id, movie_id)
     
     flash("Film został usunięty z obejrzanych", "success")
     return redirect(request.referrer or url_for('movies'))
@@ -326,10 +325,10 @@ def lists():
 
     page = request.args.get("page", 1, type=int)
 
-    pagination = watched.get_all_lists(page)
+    pagination = popcco.get_lists(page)
 
-    user_lists = watched.get_user_lists(user_id) if user_id else None
-    followed_lists = watched.get_user_followed_lists(user_id) if user_id else None
+    user_lists = popcco.get_user_lists(user_id) if user_id else None
+    followed_lists = popcco.get_user_followed_lists(user_id) if user_id else None
 
     return render_template("lists.html",
                             lists=pagination["items"],
@@ -346,7 +345,7 @@ def create_list():
         description = request.form.get("description", "").strip()
         
         if name:
-            watched.create_list(user_id, name, description)
+            popcco.create_list(user_id, name, description)
             flash(f"Lista '{name}' została utworzona", "success")
             return redirect(url_for('lists'))
         
@@ -360,7 +359,7 @@ def add_to_list(movie_id):
     list_id = request.form.get("list_id")
 
     if list_id:
-        watched.add_to_list(int(list_id), user_id, movie_id)
+        popcco.add_to_list(int(list_id), user_id, movie_id)
         flash("Dodano do listy", "success")
 
     return redirect(url_for('movie', id=movie_id))
@@ -369,13 +368,13 @@ def add_to_list(movie_id):
 def list_details(list_id):
     user_id = session.get("user_id")
 
-    custom_list = watched.get_list_details(list_id)
+    custom_list = popcco.get_list_details(list_id)
     if not custom_list:
         flash(f"Lista nie istnieje", "error")
         return redirect(url_for('lists'))
 
-    movies = watched.get_list_movies(list_id)
-    list_stats = watched.get_list_social_stats(list_id, user_id)
+    movies = popcco.get_list_movies(list_id)
+    list_stats = popcco.get_list_stats(list_id, user_id)
     is_owner = user_id and custom_list["user_id"] == user_id
 
     return render_template("list_details.html", 
@@ -391,7 +390,7 @@ def follow_list(list_id):
     if not user_id:
         return redirect(url_for('login'))
         
-    watched.follow_list(user_id, list_id)
+    popcco.follow_list(user_id, list_id)
     flash("Zaobserwowano listę", "success")
     return redirect(url_for('list_details', list_id=list_id))
 
@@ -401,7 +400,7 @@ def unfollow_list(list_id):
     if not user_id:
         return redirect(url_for('login'))
 
-    watched.unfollow_list(user_id, list_id)
+    popcco.unfollow_list(user_id, list_id)
     flash("Przestałeś obserwować listę", "success")
     return redirect(url_for('list_details', list_id=list_id))
 
@@ -409,7 +408,7 @@ def unfollow_list(list_id):
 def remove_list(list_id):
     user_id = int(session["user_id"])
 
-    success = watched.delete_list(list_id, user_id)
+    success = popcco.delete_list(list_id, user_id)
     if success:
         flash("Lista została usunięta", "success")
         return redirect(url_for('lists'))
@@ -422,7 +421,7 @@ def remove_list(list_id):
 def remove_from_list(list_id, movie_id):
     user_id = int(session["user_id"])
 
-    success = watched.remove_from_list(list_id, user_id, movie_id)
+    success = popcco.remove_from_list(list_id, user_id, movie_id)
     if success:
         flash("Film usunięty z listy", "success")
     else:
