@@ -150,38 +150,22 @@ class MovieRepository:
 
     # DO OBEJRZENIA (WATCHLIST)
     def get_watchlist(self, user_id: int, genre: str | None = None, sort: str = "newest", page: int = 1):
-        limit = 1
+        limit = 20
         
         rows = self.watchlist_dao.get(user_id, genre_filter=genre, sort_by=sort, page=page, limit=limit)
+
+        items = [Movie.from_db_row(row) for row in rows]
+
         total_count = self.watchlist_dao.count(user_id, genre_filter=genre)
-        
         total_pages = ceil(total_count / limit)
         
         return {
-            "items": rows,
+            "items": items,
             "page": page,
             "total_pages": total_pages,
             "total_count": total_count,
             "params": {"genre": genre, "sort": sort} # zachowanie filtrów w url
         }
-
-    # def get_watchlist(self, user_id: int, genre: str | None = None, sort: str = "newest") -> list[Movie]:
-    #     return self.watchlist_dao.get(user_id, genre_filter=genre, sort_by=sort)
-        # rows = self.watchlist.get(user_id)
-        # WRÓĆ
-        #
-        # movies = []
-        # for row in rows:
-        #     m = Movie(
-        #         tmdb_id=row['tmdb_id'],
-        #         title=row['title'],
-        #         poster_path=row['poster_path'],
-        #         is_on_watchlist=True,
-        #         watched_at="DATE" if row.get('is_watched') else None 
-        #     )
-        #     movies.append(m)
-        # return movies
-        # return [Movie.from_db_row(row) for row in rows]
 
     def get_watchlist_genres(self, user_id: int):
         """Pobiera dostępne gatunki z watchlisty."""
@@ -236,10 +220,10 @@ class MovieRepository:
         
         self._ensure_movie_info(tmdb_id)
         self.user_dao.add_to_watched(user_id, tmdb_id, rating)
-        print(already_watched)
         
+        self.watchlist_dao.remove(user_id, tmdb_id)
+
         if not already_watched:
-            self.watchlist_dao.remove(user_id, tmdb_id)
             return False
         
         return True
