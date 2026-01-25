@@ -28,7 +28,7 @@ class Movie:
 
         genres_str = row_dict.get('genres_str')
         # genres_list = genres_str.split(', ') if genres_str else []
-        genres_list = genres_str.split(',') if genres_str else [] # Uwaga: w GROUP_CONCAT dałem przecinek bez spacji w SQL wyżej
+        genres_list = genres_str.split(',') if genres_str else []
 
         avg = row_dict.get('avg_rating')
         avg_rating = round(float(avg), 1) if avg is not None else None

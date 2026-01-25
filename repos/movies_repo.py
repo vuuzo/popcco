@@ -23,7 +23,6 @@ class MovieRepository:
         res.params = {"q": query}
 
         return res
-        # return MovieSearchResult.from_tmdb(raw_data)
 
     def _ensure_movie_info(self, tmdb_id: int):
         """

@@ -28,7 +28,6 @@ class SecurityMiddleware:
 
         endpoint = request.endpoint
         
-        # Jeśli endpoint nie istnieje (np. 404), niech Flask się tym zajmie standardowo
         if not endpoint:
             return
 

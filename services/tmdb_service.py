@@ -30,7 +30,7 @@ class TMDBService:
         }) 
 
     def _safe_get(self, url, params=None) -> dict:
-        """Wspólna metoda do bezpiecznych zapytań."""
+        """Wspólna metoda do bezpiecznych zapytań"""
         try:
             res = self.session.get(url, params=params, timeout=5)
             res.raise_for_status()
@@ -46,7 +46,7 @@ class TMDBService:
         })
 
     def get_popular_movies(self):
-        """Nowa metoda potrzebna dla widoku gościa."""
+        """Nowa metoda potrzebna dla widoku gościa"""
         return self._safe_get(f"{self.BASE_URL}/movie/popular")
 
     def get_movie(self, tmdb_id: int) -> dict:
