@@ -17,22 +17,26 @@
   </section>
 
   <section class="movie-details-overview">
-    <p>{{movie.tagline}}</p>
+    <h3>{{movie.tagline}}</h3>
     <p>{{movie.description}}</p>
+    <div class="movie-details-genres">
+      {% for genre in movie.genres if movie.genres %}
+      <div class="badge">{{genre}}</div>
+      {% endfor %}
+    </div>
   </section>
 
-  <section class="movie-details-genres">
-    {% for genre in movie.genres if movie.genres %}
-      <div class="badge">{{genre}}</div>
-    {% endfor %}
-  </section>
 
   {% if stats.avg_rating != None %}
-  <div><p>
-  {{stats.avg_rating}}
-  na {{stats.rating_count}}
-  oceny
-  </p></div>
+  <div class="movie-rating">
+    <div class="display-rating">
+      <svg width="64" height="64">
+        <use href="#icon-popcorn"></use>
+      </svg>
+      <p>{{stats.avg_rating}}</p>
+    </div>
+    <p>na {{stats.rating_count}} oceny</p>
+  </div>
   {% endif %}
 
 {% if session.get('user_id') %}
