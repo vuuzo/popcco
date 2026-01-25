@@ -10,4 +10,4 @@
 - [X] Możliwość dodania avatara profilu użytkownika (Cloudinary)
 
 # Poprawić
-- [ ] UI Niektórych (*widoków*) stron
+- [ ] UI `/movie/`
