@@ -1108,20 +1108,31 @@ form {
 	background-color: hsl(from var(--brand) h s l / 0.1);
 }
 
+.sub {
+	font-size: 0.875rem;
+	line-height: 1.1;
+	font-weight: 400;
+	color: var(--white-200);
+	text-transform: uppercase;
+}
+
 /* MOVIE DETAILS */
 .movie-details {
-	display: grid;
-	gap: 1rem;
-	grid-template-columns: min-content 1fr 1fr;
-	grid-template-rows: 140px 1fr auto;
-	grid-template-areas:
-		"p t t"
-		"p . x"
-		"o . x";
+	display: flex;
+	gap: 2rem;
+
+	.movie-overview {
+		display: flex;
+		flex-direction: column;
+		align-items: start;
+
+		.movie-rating {
+			margin-top: auto;
+		}
+	}
 
 	.movie-details-poster {
-		grid-area: p;
-		width: 342px;
+		width: 400px;
 		height: auto;
 		.poster-wrapper {
 			aspect-ratio: 2 / 3;
@@ -1134,25 +1145,29 @@ form {
 		}
 	}
 
+	.movie-overview {
+		flex: 1;
+	}
+
 	.movie-details-title {
-		position: relative;
-		grid-area: t;
 		display: flex;
 		align-items: baseline;
 		gap: 1em;
-		position: relative;
 		font-weight: 400;
 	}
 	.movie-details-overview {
-		grid-area: o;
-		width: 100%;
+		width: 45ch;
+
+		.movie-details-genres {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.25rem;
+		}
 	}
-	.movie-details-panel {
-		grid-area: x;
-		background-color: red;
-		width: 100%;
-		height: 100%;
-	}
+}
+
+.movie-details-panel {
+	background-color: red;
 }
 
 .movie-rating {

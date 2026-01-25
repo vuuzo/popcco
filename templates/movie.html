@@ -11,33 +11,46 @@
     </div>
   </div>
 
-  <section class="movie-details-title">
-    <h1 class="highlight">{{ movie.title }}</h1>
-    <p>{{ movie.release_date[:4] if movie.release_date else "Data nieznana"}}</p>
+    <section class="movie-overview">
+      <section class="movie-details-title">
+        <h1 class="highlight">{{ movie.title }}</h1>
+        <p>{{ movie.release_date[:4] if movie.release_date else "Data nieznana"}}</p>
+      </section>
+
+      <section class="movie-details-overview">
+        <h3 class="sub">{{movie.tagline}}</h3>
+        <p>{{movie.description}}</p>
+        <div class="movie-details-genres">
+          {% for genre in movie.genres if movie.genres %}
+          <div class="badge">{{genre}}</div>
+          {% endfor %}
+        </div>
+      </section>
+
+
+      {% if stats.avg_rating != None %}
+        <div class="movie-rating">
+          <div class="display-rating">
+            <svg width="64" height="64">
+              <use href="#icon-popcorn"></use>
+            </svg>
+            <p>{{stats.avg_rating}}</p>
+          </div>
+          <p>na {{stats.rating_count}} 
+            {% if stats.rating_count == 1 %}
+            ocenę
+            {% elif stats.rating_count > 1 and stats.rating_count <= 4 %}
+            oceny
+            {% else %}
+            ocen
+            {% endif %}
+          </p>
+        </div>
+      {% endif %}
   </section>
 
-  <section class="movie-details-overview">
-    <h3>{{movie.tagline}}</h3>
-    <p>{{movie.description}}</p>
-    <div class="movie-details-genres">
-      {% for genre in movie.genres if movie.genres %}
-      <div class="badge">{{genre}}</div>
-      {% endfor %}
-    </div>
-  </section>
+</section>
 
-
-  {% if stats.avg_rating != None %}
-  <div class="movie-rating">
-    <div class="display-rating">
-      <svg width="64" height="64">
-        <use href="#icon-popcorn"></use>
-      </svg>
-      <p>{{stats.avg_rating}}</p>
-    </div>
-    <p>na {{stats.rating_count}} oceny</p>
-  </div>
-  {% endif %}
 
 {% if session.get('user_id') %}
   <section class="movie-details-panel">
@@ -107,7 +120,6 @@
   <p><a href="{{url_for('login')}}">Zaloguj się</a> żeby oceniać.</p>
 {% endif %}
 
-</section>
 
 <div class="spacing"></div>
 <h4 class="subheading">Komentarze</h4>
