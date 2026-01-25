@@ -18,8 +18,9 @@
   {% for movie in movies %}
   <div>
     <div class="poster-wrapper">
-      <img src="{{ movie.poster_path if movie.poster_path.startswith('/static')
-          else 'https://image.tmdb.org/t/p/w200' ~ movie.poster_path }}">
+      <img src="{{ movie.get_poster_url('w185') }}" alt="{{ movie.title }}">
+
+
       <a href="{{ url_for('movie', id=movie.tmdb_id) }}"></a>
 
 

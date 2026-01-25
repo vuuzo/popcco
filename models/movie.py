@@ -64,5 +64,18 @@ class Movie:
             genres=genres_names
         )
 
+
+    def get_poster_url(self, size = "w342") -> str:
+        """
+        Zwraca pełny URL do plakatu o podanym rozmiarze.
+        """
+        if not self.poster_path or self.poster_path == "/static/images/no_image.svg":
+            return "/static/images/no_image.svg"
+        
+        if self.poster_path.startswith('/static') or self.poster_path.startswith('http'):
+            return self.poster_path
+            
+        return f"https://image.tmdb.org/t/p/{size}{self.poster_path}"
+
     def __str__(self):
         return f"[{self.tmdb_id}] {self.title}"

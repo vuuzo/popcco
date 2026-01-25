@@ -122,9 +122,8 @@ class MovieRepository:
 
     def get_list_movies(self, list_id: int) -> list[Movie]:
         """Pobiera filmy znajdujące się na danej liście"""
-        # WRÓĆ
-        # Tu też można by zmapować na obiekty Movie, na razie zwracamy surowe dane z repo
-        return self.list_dao.get_list_movies(list_id)
+        rows =  self.list_dao.get_list_movies(list_id)
+        return [Movie.from_db_row(row) for row in rows]
 
     def add_to_list(self, list_id: int, user_id: int, tmdb_id: int):
         """Dodaje film do listy"""
@@ -200,11 +199,13 @@ class MovieRepository:
         
         rows = self.user_dao.get_user_movies(user_id, genre_filter=genre, sort_by=sort, page=page, limit=limit)
         total_count = self.user_dao.count_user_movies(user_id, genre_filter=genre)
+
+        items = [Movie.from_db_row(row) for row in rows]
         
         total_pages = ceil(total_count / limit)
 
         return {
-            "items": rows,
+            "items": items,
             "page": page,
             "total_pages": total_pages,
             "total_count": total_count,

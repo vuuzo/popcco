@@ -49,10 +49,7 @@
   {% for movie in movies %}
     <div class="poster-wrapper list-item">
       <a href="{{ url_for('movie', id=movie.tmdb_id) }}"></a>
-      <img
-        src="{{ movie.poster_path if movie.poster_path.startswith('/static')
-        else 'https://image.tmdb.org/t/p/w200' ~ movie.poster_path }}"
-      >
+      <img src="{{ movie.get_poster_url('w342') }}" alt="{{ movie.title }}">
       {% if is_owner %}
       <div class="action-wrapper"><form class="action-form action-remove" action="{{ url_for('remove_from_list', list_id=list.id, movie_id=movie.tmdb_id) }}" method="POST">
         <button type="submit">

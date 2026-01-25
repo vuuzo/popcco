@@ -34,7 +34,7 @@
             </div>
             <div class="poster-wrapper">
                 <a href="{{url_for('movie', id=movie.tmdb_id)}}"></a>
-                <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}">
+                <img src="{{ movie.get_poster_url('w185') }}" alt="{{ movie.title }}">
             </div>
           </div>
 
@@ -76,13 +76,7 @@
         {% for movie in movies_tmdb %}
             <a href="{{ url_for('movie', id=movie.tmdb_id) }}" class="movie-card">
                 <div class="poster-wrapper">
-                    {% if movie.poster_path %}
-                        <img src="https://image.tmdb.org/t/p/w342{{ movie.poster_path }}" 
-                             alt="{{ movie.title }}" loading="lazy">
-                    {% else %}
-                        <img src="{{ url_for('static', filename='images/no_image.svg') }}" 
-                             alt="Brak zdjęcia">
-                    {% endif %}
+                    <img src="{{ movie.get_poster_url('w185') }}" alt="{{ movie.title }}">
                 </div>
             </a>
         {% endfor %}

@@ -7,10 +7,7 @@
 <section class="movie-details">
   <div class="movie-details-poster">
     <div class="poster-wrapper">
-      <img
-        src="{{ movie.poster_path if movie.poster_path.startswith('/static')
-        else 'https://image.tmdb.org/t/p/w342' ~ movie.poster_path }}"
-      >
+      <img src="{{ movie.get_poster_url('w500') }}" alt="{{ movie.title }}">
     </div>
   </div>
 

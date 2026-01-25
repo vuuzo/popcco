@@ -23,10 +23,7 @@
     <div class="movies-grid">
       {% for movie in movies %}
       <div class="poster-wrapper movie-item" data-genres="{{ movie.genres|join(',') }}">
-            <img
-              src="{{ movie.poster_path if movie.poster_path.startswith('/static')
-                      else 'https://image.tmdb.org/t/p/w200' ~ movie.poster_path }}"
-            >
+            <img src="{{ movie.get_poster_url('w185') }}" alt="{{ movie.title }}">
             <a href="{{ url_for('movie', id=movie.tmdb_id) }}"></a>
 
           <div class="action-wrapper">
