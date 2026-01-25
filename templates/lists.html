@@ -91,12 +91,13 @@
     {% endfor %}
     </section>
 
-    {{ pagination_element.render(pagination, 'lists') }}
 
   {% else %}
-  <p>nie ma żadnych list.</p>
+    <p>nie ma żadnych list.</p>
   {% endif %}
   </section>
+
+  {{ pagination_element.render(pagination, 'lists') }}
 
 {% endblock %}
 

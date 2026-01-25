@@ -70,12 +70,13 @@ class MovieUserData:
 
     def get_all_comments(self, tmdb_id: int):
         """Pobiera komentarze wraz z nazwami użytkowników i ich ocenami filmu."""
-        return self.db.fetch_all("""
+        rows = self.db.fetch_all("""
             SELECT 
                 c.content, 
                 c.created_at, 
                 c.updated_at, 
                 u.username,
+                u.avatar_url,
                 m.rating
             FROM comments c
             JOIN users u ON c.user_id = u.id
@@ -83,6 +84,17 @@ class MovieUserData:
             WHERE c.tmdb_id = ?
             ORDER BY c.created_at DESC
         """, (tmdb_id,))
+
+        results = []
+        for row in rows:
+            list_dict = dict(row)
+
+            if not list_dict['avatar_url']:
+                list_dict['avatar_url'] = "/static/images/no_avatar.svg"
+
+            results.append(list_dict)
+
+        return results
 
     def get_user_movie_details(self, user_id: int, tmdb_id: int):
         """Pobiera ocenę i komentarz użytkownika dla konkretnego filmu."""

@@ -1,5 +1,8 @@
+{% import "macros/elements.html" as element %}
 {% extends 'base.html' %}
 {% block body %}
+
+<div class="spacing sm"></div>
 
 <section class="movie-details">
   <div class="movie-details-poster">
@@ -98,28 +101,40 @@
 
 </section>
 
-<h4>Komentarze ({{ comments|length }})</h4>
+<div class="spacing"></div>
+<h4 class="subheading">Komentarze</h4>
 
-<div>
+<div id="comments-wrapper">
     {% if comments %}
         {% for comment in comments %}
-            <div>
                 <div class="comment">
-                  {% if comment.username == session.get('username') %}
-                  <form
-                    action="{{ url_for('remove_comment', movie_id=movie.tmdb_id) }}"
-                    method="POST"
-                  >
-                    <button type="submit">Usuń</button>
-                  </form>
-                  {% endif %}
-                    <div>
-                      <h4>@{{ comment.username }}</h4>
-                      <small>{{ comment.created_at }} {% if comment.rating %} {{ comment.rating*'★'}} {% endif %}</small>
+                  <img class="comment-avatar avatar" src="{{comment.avatar_url}}" alt="user's avatar">
+
+                  <section>
+                    <div class="content">
+                      <h4>{{ comment.username }}</h4>
+                        {% if comment.rating %} 
+                        <div class="rating">
+                          {% for _ in range(comment.rating) %}
+                          {{ element.popcorn(20) }}
+                          {% endfor %}
+                        </div>
+                        {% endif %}
                     </div>
                     <p>{{ comment.content }}</p>
-                </div>
-            </div>
+                  </section>
+
+                  {% if comment.username == session.get('username') %}
+                    <form
+                      class="remove-comment"
+                      action="{{ url_for('remove_comment', movie_id=movie.tmdb_id) }}"
+                      method="POST"
+                    >
+                      <button class="button destroy sm" type="submit">Usuń komentarz</button>
+                    </form>
+                  {% endif %}
+
+              </div>
         {% endfor %}
     {% else %}
         <p>Brak komentarzy pod tym filmem.</p>

@@ -98,7 +98,7 @@ class MovieRepository:
 
     def get_lists(self, page = 1):
         """Zwraca wszystkie listy z bazy"""
-        limit = 10
+        limit = 8
         rows = self.list_dao.get_all_lists(page=page, limit=limit)
         total_count = self.list_dao.count_all_lists()
         

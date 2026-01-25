@@ -101,6 +101,10 @@ input {
 
 .spacing {
 	height: 8rem;
+
+	&.sm {
+		height: 4rem;
+	}
 }
 
 #container {
@@ -612,6 +616,10 @@ svg.dimmed {
 		--size: 24px;
 	}
 
+	&.comment-avatar {
+		--size: 36px;
+	}
+
 	width: var(--size);
 	height: var(--size);
 	border-radius: 50%;
@@ -1030,27 +1038,53 @@ form {
 	}
 }
 
-.comment {
+#comments-wrapper {
 	display: flex;
 	flex-direction: column;
+	gap: 2rem;
+}
+
+.comment {
+	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: auto 1fr;
 	position: relative;
 	padding: 4px;
-	div {
+
+	form button {
+		margin-top: 0;
+		top: 0;
+		right: 0;
+		position: absolute;
+	}
+
+	.content {
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		h4 {
-			font-size: 0.95rem;
-			margin: 0;
-			padding: 0;
-			line-height: 1;
-			margin: 0;
+		margin-top: calc(18px - 0.5em);
+
+		.rating {
+			display: flex;
+			svg {
+				display: block;
+			}
 		}
 	}
-	button {
-		position: absolute;
-		top: 4px;
-		right: 4px;
+
+	p {
+		margin: 0;
+		padding-top: 0.5rem;
+	}
+
+	h4 {
+		font-size: 0.875rem;
+		font-weight: 400;
+		color: var(--white-100);
+		margin: 0;
+		padding: 0;
+		line-height: 1;
+		margin: 0;
 	}
 }
 
