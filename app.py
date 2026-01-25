@@ -180,7 +180,12 @@ def movies():
     sort = request.args.get("sort", "newest")
     page = request.args.get("page", 1, type=int)
 
+
     pagination = popcco.get_user_movies(user_id, genre, sort, page)
+
+    if page > 1 and not pagination["items"]:
+        return redirect(url_for('movies', page=1, genre=genre, sort=sort))
+
     available_genres = popcco.get_user_genres(user_id)
     
     return render_template("movies.html",
@@ -260,6 +265,10 @@ def watchlist():
     page = request.args.get("page", 1, type=int)
 
     pagination = popcco.get_watchlist(user_id, genre, sort, page)
+
+    if page > 1 and not pagination["items"]:
+        return redirect(url_for('watchlist', page=1, genre=genre, sort=sort))
+
     available_genres = popcco.get_watchlist_genres(user_id)
 
     return render_template("watchlist.html",

@@ -1,18 +1,17 @@
 {% extends 'base.html' %}
 {{ super() }}
 {% block body %}
-<h1>Stwórz nową listę filmów</h1>
-<form action="{{ url_for('create_list') }}" method="POST">
+
+<h1 class="subheading">Stwórz nową listę filmów</h1>
+<form class="create-list-form" action="{{ url_for('create_list') }}" method="POST">
   <div>
-    <label for="name">nazwa</label>
+    <label for="name">Nazwa Listy</label>
     <input type="text" id="name" name="name" required>
   </div>
   <div>
-    <label for="description">opis</label>
+    <label for="description">Opis</label>
     <textarea name="description" id="description" name="description"></textarea>
   </div>
-  <br>
-  <button type="submit">Zapisz listę</button>
-  <a href="{{ url_for('lists') }}">Anuluj</a>
+  <button class="button" type="submit">Zapisz listę</button>
 </form>
 {% endblock %}

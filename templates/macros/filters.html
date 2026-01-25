@@ -1,9 +1,9 @@
 {% macro sort_filter(genres, current_genre, current_sort, context='movies') %}
-<div class="filter-container">
+<div class="filter-wrapper">
   <div class="filter-group">
-    <label for="genre-select" class="filter-label">Gatunek:</label>
+    <label for="genre-select" class="filter-label">Gatunek</label>
     <div class="select-wrapper">
-      <select id="genre-select" class="filter-select" onchange="update_query('genre', this.value)">
+      <select id="genre-select" class="button secondary" onchange="update_query('genre', this.value)">
         <option value="all" {% if current_genre == 'all' %}selected{% endif %}>Wszystkie</option>
         {% for g in genres %}
         <option value="{{ g.name }}" {% if current_genre == g.name %}selected{% endif %}>{{ g.name }}</option>
@@ -12,9 +12,9 @@
     </div>
   </div>
   <div class="filter-group">
-    <label for="sort-select" class="filter-label">Sortuj:</label>
+    <label for="sort-select" class="filter-label">Sortowanie</label>
     <div class="select-wrapper">
-      <select id="sort-select" class="filter-select" onchange="update_query('sort', this.value)">
+      <select id="sort-select" class="button secondary" onchange="update_query('sort', this.value)">
         <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>
           {% if context == 'movies' %}Ostatnio obejrzane{% else %}Ostatnio dodane{% endif %}
         </option>
