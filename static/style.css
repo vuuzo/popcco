@@ -996,23 +996,6 @@ form {
 			div {
 				margin-top: calc((24px - var(--font-s)) / 2 - 1px);
 			}
-
-			/* .user-info { */
-			/* 	--s: 2px; */
-			/**/
-			/* 	display: flex; */
-			/* 	gap: 0.5em; */
-			/* 	align-items: center; */
-			/* 	background-color: hsl(from var(--black-700) h s l / 0.4); */
-			/* 	padding: var(--s); */
-			/* 	border-radius: 50px; */
-			/* 	padding-right: calc(0.5em + 2 * var(--s)); */
-			/* 	box-shadow: 0 0 0 1px hsl(0, 100%, 100%, 0.08); */
-			/* 	transition: background-color 150ms; */
-			/* 	&:hover { */
-			/* 		background-color: hsl(from var(--black-700) h s l / 0.6); */
-			/* 	} */
-			/* } */
 		}
 
 		span {
@@ -1111,6 +1094,7 @@ form {
 	}
 }
 
+/* MOVIE DETAILS */
 .movie-details {
 	display: grid;
 	gap: 1rem;
@@ -1132,6 +1116,7 @@ form {
 		align-items: baseline;
 		gap: 1em;
 		position: relative;
+		font-weight: 400;
 	}
 	.movie-details-overview {
 		grid-area: o;

@@ -6,6 +6,7 @@ class Movie:
     title: str | None = None
     poster_path: str = "/static/images/no_image.svg"
     description: str | None = None
+    tagline: str | None = None
     release_date: str | None = None
     rating: int | None = None
     watched_at: str | None = None
@@ -58,6 +59,7 @@ class Movie:
             title=data.get('title') or data.get('original_title') or "Nieznany tytuł",
             poster_path=data.get('poster_path') or "/static/images/no_image.svg",
             description=data.get('overview', ''),
+            tagline=data.get('tagline', ''),
             release_date=data.get('release_date'),
             genres=genres_names
         )

@@ -20,7 +20,14 @@
   </section>
 
   <section class="movie-details-overview">
+    <p>{{movie.tagline}}</p>
     <p>{{movie.description}}</p>
+  </section>
+
+  <section class="movie-details-genres">
+    {% for genre in movie.genres if movie.genres %}
+      <div class="badge">{{genre}}</div>
+    {% endfor %}
   </section>
 
   {% if stats.avg_rating != None %}
