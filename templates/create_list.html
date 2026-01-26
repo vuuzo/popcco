@@ -4,14 +4,14 @@
 
 <h1 class="subheading">Stwórz nową listę filmów</h1>
 <form class="create-list-form" action="{{ url_for('create_list') }}" method="POST">
-  <div>
-    <label for="name">Nazwa Listy</label>
-    <input type="text" id="name" name="name" required>
-  </div>
-  <div>
-    <label for="description">Opis</label>
-    <textarea name="description" id="description" name="description"></textarea>
-  </div>
+    <div>
+      <label for="name">Nazwa Listy</label>
+      <input type="text" id="name" name="name" required autofocus>
+    </div>
+    <div>
+      <label for="description">Opis</label>
+      <textarea name="description" id="description" name="description"></textarea>
+    </div>
   <button class="button" type="submit">Zapisz listę</button>
 </form>
 {% endblock %}

@@ -324,6 +324,19 @@ def remove_watched(movie_id):
     return redirect(request.referrer or url_for('movies'))
 
 
+# app.py
+
+@app.route("/movie/<int:movie_id>/rate/delete", methods=["POST"])
+def delete_rating(movie_id):
+    if not g.user:
+        return redirect(url_for('login'))
+        
+    popcco.mark_as_watched(g.user.id, movie_id, None)
+    
+    flash("Ocena została usunięta", "success")
+    return redirect(request.referrer)
+    # return redirect(url_for('movie_details', movie=movie_id))
+
 # =============
 # LISTS
 # =============

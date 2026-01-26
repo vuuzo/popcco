@@ -8,12 +8,18 @@
     </a>
   </header>
   <form action="/register" method="POST">
-    <label for="username">Nazwa</label>
-    <input type="text" id="username" name="username" required>
-    <label for="password">Hasło</label>
-    <input type="password" id="password" name="password" required>
-    <label for="repassword">Powtórz Hasło</label>
-    <input type="password" id="repassword" name="repassword" required>
+    <div>
+      <label for="username">Nazwa</label>
+      <input type="text" id="username" name="username" required autofocus>
+    </div>
+    <div>
+      <label for="password">Hasło</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <div>
+      <label for="repassword">Powtórz Hasło</label>
+      <input type="password" id="repassword" name="repassword" required>
+    </div>
     <button class="button" type="submit">Stwórz Konto</button>
   </form>
 
