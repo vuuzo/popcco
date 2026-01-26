@@ -164,7 +164,7 @@
 
                   <section>
                     <div class="content">
-                      <h4>{{ comment.username }}</h4>
+                      <h4><a href="{{url_for("profile", username=comment.username)}}">{{ comment.username }}</a></h4>
                         {% if comment.rating %} 
                         <div class="rating">
                           {% for _ in range(comment.rating) %}
