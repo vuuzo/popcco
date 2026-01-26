@@ -31,9 +31,3 @@ class CloudinaryService:
         except Exception as e:
             print(f"Cloudinary Error: {e}")
             return None
-
-    def delete(self, user_id: str):
-        try:
-            cloudinary.uploader.destroy(f"popcco_avatars/{user_id}")
-        except Exception as e:
-            print(f"Cloudinary Delete Error: {e}")
