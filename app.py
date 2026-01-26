@@ -1,4 +1,5 @@
 from flask import Flask, flash, redirect, render_template, request, session, url_for, g
+import click
 from db.database import Database
 from db.repos.list_repo import ListRepo
 from db.repos.movie_user_data import MovieUserData
@@ -452,6 +453,16 @@ def remove_from_list(list_id, movie_id):
     return redirect(url_for('list_details', list_id=list_id))
 
 
+
+@app.cli.command('init-db')
+def init_db_command():
+    """Tworzy nowe tabele w bazie danych."""
+    with app.app_context():
+        db_conn = db.get_db()
+        with open('data/schema.sql', 'r', encoding='utf-8') as f:
+            db_conn.executescript(f.read())
+        click.echo('Zainicjowano bazę danych.')
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5001) # WRÓĆ - MEGA WAŻNE ZMIENIĆ NA FALSE PRZY ODDANIU PROJEKTU
+    app.run(debug=True, port=5001)
 
