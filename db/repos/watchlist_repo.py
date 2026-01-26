@@ -22,7 +22,7 @@ class WatchlistRepo:
         sort_options = {
             "newest": "w.id DESC",
             "oldest": "w.id ASC",
-            "a_z": "mc.title ASC",    # alfabetycznie
+            "a_z": "mc.title ASC",
             "z_a": "mc.title DESC"
         }
 
@@ -79,24 +79,6 @@ class WatchlistRepo:
             
         row = self.db.fetch_one(sql, tuple(params))
         return row['count'] if row else 0
-
-        # return self.db.fetch_all("""
-        #     SELECT 
-        #         w.tmdb_id, 
-        #         mc.title, 
-        #         mc.poster_path,
-        #         m.watched_at,
-        #         1 AS is_on_watchlist,
-        #         GROUP_CONCAT(g.name, ', ') as genres_str
-        #     FROM watchlist w
-        #     JOIN movies_cache mc ON w.tmdb_id = mc.tmdb_id
-        #     LEFT JOIN movies m ON w.user_id = m.user_id AND w.tmdb_id = m.tmdb_id
-        #     LEFT JOIN movie_genres mg ON mg.tmdb_id = mc.tmdb_id
-        #     LEFT JOIN genres g ON g.id = mg.genre_id
-        #     WHERE w.user_id = ?
-        #     GROUP BY w.tmdb_id
-        #     ORDER BY w.id DESC
-        # """, (user_id,))
 
     def get_watchlist_genres(self, user_id: int):
         return self.db.fetch_all("""

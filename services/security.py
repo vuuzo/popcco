@@ -16,13 +16,6 @@ class SecurityMiddleware:
         self.app.before_request(self.check_access)
 
     def check_access(self):
-        # WRÓĆ
-        # endpoint = request.endpoint
-        #
-        # # Ignorujemy żądania bez endpointu
-        # if not endpoint or endpoint == 'static':
-        #     return
-
         if request.path.startswith('/static'):
             return
 
