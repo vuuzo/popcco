@@ -152,7 +152,7 @@ class MovieRepository:
     # DO OBEJRZENIA (WATCHLIST)
     def get_watchlist(self, user_id: int, genre: str | None = None, sort: str = "newest", page: int = 1):
         """Zwraca wszystkie filmy na 'Do Obejrzenia' usera"""
-        limit = 21
+        limit = 32
         
         rows = self.watchlist_dao.get(user_id, genre_filter=genre, sort_by=sort, page=page, limit=limit)
 
@@ -197,7 +197,7 @@ class MovieRepository:
 
     def get_user_movies(self, user_id: int, genre: str | None = None, sort: str = "newest", page: int = 1):
         """Zwraca filmy obejrzane przez usera"""
-        limit = 21
+        limit = 32
         
         rows = self.user_dao.get_user_movies(user_id, genre_filter=genre, sort_by=sort, page=page, limit=limit)
         total_count = self.user_dao.count_user_movies(user_id, genre_filter=genre)
