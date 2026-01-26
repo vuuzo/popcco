@@ -19,10 +19,7 @@
   <div>
     <div class="poster-wrapper">
       <img src="{{ movie.get_poster_url('w185') }}" alt="{{ movie.title }}">
-
-
       <a href="{{ url_for('movie', id=movie.tmdb_id) }}"></a>
-
 
       <div class="action-wrapper">
         {% if movie.is_watched %}
