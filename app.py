@@ -452,6 +452,6 @@ def remove_from_list(list_id, movie_id):
     return redirect(url_for('list_details', list_id=list_id))
 
 
-if __name__ in "__main__":
+if __name__ == "__main__":
     app.run(debug=True, port=5001) # WRÓĆ - MEGA WAŻNE ZMIENIĆ NA FALSE PRZY ODDANIU PROJEKTU
 
