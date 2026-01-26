@@ -851,6 +851,7 @@ footer {
 	gap: 1.5rem;
 	color: hsl(from var(--brand) h s 30%);
 	padding-top: 0.75rem !important;
+	mix-blend-mode: luminosity;
 
 	img {
 		height: 1em;
