@@ -181,6 +181,13 @@ def movies():
     sort = request.args.get("sort", "newest")
     page = request.args.get("page", 1, type=int)
 
+    last_sort = session.get("last_sort")
+    
+    if last_sort != sort and page != 1:
+        session["last_sort"] = sort
+        return redirect(url_for('movies', page=1, genre=genre, sort=sort))
+    
+    session["last_sort"] = sort
 
     pagination = popcco.get_user_movies(user_id, genre, sort, page)
 
@@ -264,6 +271,16 @@ def watchlist():
     genre = request.args.get("genre", "all")
     sort = request.args.get("sort", "newest")
     page = request.args.get("page", 1, type=int)
+
+
+    last_sort = session.get("watchlist_last_sort")
+    
+    if last_sort != sort and page != 1:
+        session["watchlist_last_sort"] = sort
+        return redirect(url_for('movies', page=1, genre=genre, sort=sort))
+    
+    session["watchlist_last_sort"] = sort
+
 
     pagination = popcco.get_watchlist(user_id, genre, sort, page)
 
