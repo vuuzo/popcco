@@ -1,3 +1,5 @@
+Po usunięciu bazy danych należy ją na nowo stworzyć komendą: `flask init-db`
+
 # Wdrożyć
 - [X] Slider do ocen filmów
 - [X] Widok zapisanych list przez użytkownika w `/lists`
