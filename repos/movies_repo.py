@@ -2,6 +2,7 @@ from math import ceil
 from db.repos.list_repo import ListRepo
 from db.repos.movie_user_data import MovieUserData
 from db.repos.watchlist_repo import WatchlistRepo
+from models.comment import Comment
 from models.movie_search import MovieSearchResult
 from services.tmdb_adapter import TMDBAdapter
 from models.movie import Movie
@@ -80,7 +81,8 @@ class MovieRepository:
     # KOMENTARZE
     def get_comments(self, tmdb_id: int):
         """Pobiera wszystkie komentarze pod filmem"""
-        return self.user_dao.get_all_comments(tmdb_id)
+        rows = self.user_dao.get_all_comments(tmdb_id)
+        return [Comment.from_db_row(row) for row in rows]
         
     def add_comment(self, user_id: int, tmdb_id: int, content: str):
         """Dodaje komentarz"""
