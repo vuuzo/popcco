@@ -363,7 +363,7 @@ def create_list():
     user_id = int(session["user_id"])
 
     if request.method == "POST":
-        name = request.form.get("name", "").strip()
+        name = request.form.get("list_name", "").strip()
         description = request.form.get("description", "").strip()
         
         if name:
